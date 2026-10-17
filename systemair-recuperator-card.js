@@ -2,9 +2,9 @@
  * Systemair Recuperator Lovelace Card
  * Custom Home Assistant card for Systemair SAVE ventilation units with heat recovery.
  * Fully matching visual mockup aesthetics: zero-waste minimal margin layout, dynamic thermal
- * gradient for all 4 airflows (blue to red), realistic snail blowers, active reheater,
- * bold high-visibility typography, native climate switching, and interactive more-info support.
- * Version: 1.0.36
+ * gradient for all 4 airflows (blue to red), volumetric fluid particle streams, snail blowers,
+ * active reheater, bold high-visibility typography, native climate switching, and interactive more-info support.
+ * Version: 1.0.37
  */
 
 class SystemairRecuperatorCard extends HTMLElement {
@@ -19,8 +19,8 @@ class SystemairRecuperatorCard extends HTMLElement {
     if (!config) throw new Error('Invalid configuration');
     this._config = {
       title: 'Systemair SAVE',
+      climate: 'climate.systemair',
       climate_entity: null,
-      outdoor_temp_entity: null,
       unit_type: 'rotary',
       show_co2: true,
       show_humidity: true,
@@ -46,8 +46,22 @@ class SystemairRecuperatorCard extends HTMLElement {
   static getStubConfig() {
     return {
       title: 'Systemair SAVE',
-      climate_entity: '',
+      climate: 'climate.systemair',
       outdoor_temp_entity: '',
+      exhaust_temp_entity: '',
+      exhaust_flow_entity: '',
+      extract_temp_entity: '',
+      extract_humidity_entity: '',
+      extract_co2_entity: '',
+      supply_temp_entity: '',
+      supply_flow_entity: '',
+      saf_rpm_entity: '',
+      eaf_rpm_entity: '',
+      heat_recovery_entity: '',
+      heater_switch: '',
+      eco_switch: '',
+      free_cooling_switch: '',
+      filter_entity: '',
     };
   }
 
@@ -60,6 +74,7 @@ class SystemairRecuperatorCard extends HTMLElement {
     if (!this._hass) return null;
     const states = this._hass.states;
     for (const p of patterns) {
+      if (!p) continue;
       if (typeof p === 'string' && states[p]) return p;
       if (p instanceof RegExp) {
         const found = Object.keys(states).find(id => p.test(id));
@@ -69,15 +84,66 @@ class SystemairRecuperatorCard extends HTMLElement {
     return null;
   }
 
-  _getClimateId() {
-    if (this._config.climate_entity && this._hass && this._hass.states[this._config.climate_entity]) {
-      return this._config.climate_entity;
+  _resolveEntity(configKeys, fallbackPatterns = []) {
+    const keys = Array.isArray(configKeys) ? configKeys : [configKeys];
+    for (const k of keys) {
+      if (this._config && this._config[k]) {
+        const val = this._config[k];
+        if (typeof val === 'string' && val.trim().length > 0) {
+          return val.trim();
+        }
+      }
     }
-    return this._findEntity([
-      /^climate\.systemair_vtr/,
-      /^climate\.systemair/,
-      /^climate\./
-    ]);
+    return this._findEntity(fallbackPatterns);
+  }
+
+  _getClimateId() {
+    return this._resolveEntity(
+      ['climate', 'climate_entity'],
+      [
+        /^climate\.systemair_vtr/,
+        /^climate\.systemair/,
+        /^climate\./
+      ]
+    );
+  }
+
+  _getSwitchEntity(type) {
+    if (type === 'heater') {
+      return this._resolveEntity(
+        ['heater_switch', 'heater_entity', 'reheater_switch', 'reheater_entity'],
+        [
+          /^switch\.systemair.*heater/,
+          /^switch\.systemair_vtr.*heater/,
+          /^switch\..*heater/i,
+          /^switch\..*reheater/i,
+          /^switch\..*нагрев/i,
+          /^switch\..*догрев/i
+        ]
+      );
+    }
+    if (type === 'eco') {
+      return this._resolveEntity(
+        ['eco_switch', 'eco_entity', 'eco_mode_switch'],
+        [
+          /^switch\.systemair.*eco_mode/,
+          /^switch\.systemair_vtr.*eco_mode/,
+          /^switch\..*eco/i
+        ]
+      );
+    }
+    if (type === 'free_cooling') {
+      return this._resolveEntity(
+        ['free_cooling_switch', 'free_cooling_entity'],
+        [
+          /^switch\.systemair.*free_cooling/,
+          /^switch\.systemair_vtr.*free_cooling/,
+          /^switch\..*free_cooling/i,
+          /^switch\..*cooling/i
+        ]
+      );
+    }
+    return null;
   }
 
   _getState(entityId, fallback = '--') {
@@ -187,7 +253,7 @@ class SystemairRecuperatorCard extends HTMLElement {
           gap: 3px;
         }
 
-        /* HEADER PANEL (Zero-waste Compact Design) */
+        /* HEADER PANEL */
         .header {
           display: flex;
           align-items: center;
@@ -330,26 +396,36 @@ class SystemairRecuperatorCard extends HTMLElement {
           animation-play-state: paused !important;
         }
 
-        .flow-stream {
+        /* Volumetric Flow Streams & Flying Particle Beads */
+        .flow-underglow {
+          fill: none;
+          stroke-linecap: round;
+          stroke-linejoin: round;
+        }
+        .flow-core {
+          fill: none;
+          stroke-linecap: round;
+          stroke-linejoin: round;
+        }
+        .flow-particles {
           fill: none;
           stroke-linecap: round;
           stroke-linejoin: round;
           animation: flowMotion 2.2s linear infinite;
         }
-        .flow-stream-fast {
+        .flow-particles-fast {
           fill: none;
           stroke-linecap: round;
           stroke-linejoin: round;
-          animation: flowMotion 1.5s linear infinite;
+          animation: flowMotion 1.4s linear infinite;
         }
         @keyframes flowMotion {
-          from { stroke-dashoffset: 44; }
+          from { stroke-dashoffset: 54; }
           to { stroke-dashoffset: 0; }
         }
 
         .fan-impeller {
           transform-origin: 0px 0px;
-          animation: fanSpin 1.2s linear infinite;
           will-change: transform;
         }
         @keyframes fanSpin {
@@ -359,7 +435,6 @@ class SystemairRecuperatorCard extends HTMLElement {
 
         .rotor-spin-group {
           transform-origin: 270px 175px;
-          animation: rotorSpin 8s linear infinite;
           will-change: transform;
         }
         @keyframes rotorSpin {
@@ -368,34 +443,34 @@ class SystemairRecuperatorCard extends HTMLElement {
         }
 
         .heater-coil {
-          stroke: #64748b;
-          stroke-width: 2.6;
+          stroke: #475569;
+          stroke-width: 3.5;
           fill: none;
           stroke-linecap: round;
           stroke-linejoin: round;
-          transition: all 0.3s ease;
+          transition: stroke 0.4s ease, filter 0.4s ease;
         }
         .heater-coil.active {
           stroke: #ff7a18;
-          stroke-width: 3.4;
-          filter: drop-shadow(0 0 6px rgba(255, 122, 24, 0.95)) drop-shadow(0 0 12px rgba(255, 90, 0, 0.7));
+          filter: drop-shadow(0 0 8px rgba(255, 122, 24, 0.95)) drop-shadow(0 0 16px rgba(255, 77, 0, 0.6));
           animation: heaterPulse 2s ease-in-out infinite;
         }
         @keyframes heaterPulse {
-          0%, 100% { stroke: #ff7a18; filter: drop-shadow(0 0 6px rgba(255, 122, 24, 0.85)); }
-          50% { stroke: #ff9800; filter: drop-shadow(0 0 12px rgba(255, 152, 0, 1)); }
+          0%, 100% { stroke: #ff7a18; }
+          50% { stroke: #ff3b30; }
         }
 
         .channel-title {
-          fill: #e2e8f0;
           font-size: 15px;
           font-weight: 700;
-          letter-spacing: 0.3px;
+          fill: #f1f5f9;
+          letter-spacing: -0.01em;
         }
         .sensor-sub {
-          fill: #cbd5e1;
-          font-size: 13.5px;
+          font-size: 14px;
           font-weight: 600;
+          fill: #94a3b8;
+          letter-spacing: 0.01em;
         }
         .temp-val-svg {
           font-size: 28px;
@@ -403,7 +478,7 @@ class SystemairRecuperatorCard extends HTMLElement {
           transition: fill 0.5s ease;
         }
 
-        /* FOOTER CONTROLS PANEL (Zero-waste 3-Row Layout) */
+        /* FOOTER CONTROLS PANEL */
         .controls-deck {
           display: flex;
           flex-direction: column;
@@ -466,7 +541,7 @@ class SystemairRecuperatorCard extends HTMLElement {
           box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
         }
 
-        /* Row 2: 3-Column Centered Toggles (100% Fit, Zero Overflow) */
+        /* Row 2: 3-Column Centered Toggles */
         .toggles-grid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
@@ -480,6 +555,13 @@ class SystemairRecuperatorCard extends HTMLElement {
           justify-content: center;
           gap: 3px;
           user-select: none;
+          cursor: pointer;
+          padding: 2px 0;
+          border-radius: 6px;
+          transition: background 0.15s ease;
+        }
+        .toggle-col:hover {
+          background: rgba(255, 255, 255, 0.04);
         }
         .toggle-label {
           font-size: 0.76rem;
@@ -488,6 +570,7 @@ class SystemairRecuperatorCard extends HTMLElement {
           white-space: nowrap;
           text-align: center;
           line-height: 1.1;
+          pointer-events: none;
         }
         .ios-switch {
           width: 34px;
@@ -498,7 +581,7 @@ class SystemairRecuperatorCard extends HTMLElement {
           position: relative;
           transition: background 0.25s, border-color 0.25s, box-shadow 0.25s;
           flex-shrink: 0;
-          cursor: pointer;
+          pointer-events: none;
         }
         .ios-switch .thumb {
           width: 15px;
@@ -555,9 +638,9 @@ class SystemairRecuperatorCard extends HTMLElement {
         }
         .preset-chip.active {
           color: #ffffff;
-          background: #3b475a;
-          border-color: rgba(255, 255, 255, 0.25);
-          box-shadow: 0 0 8px rgba(255, 255, 255, 0.15);
+          background: #3b82f6;
+          border-color: #60a5fa;
+          box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
           font-weight: 700;
         }
       </style>
@@ -628,25 +711,33 @@ class SystemairRecuperatorCard extends HTMLElement {
               <g><rect x="0" y="234" width="70" height="60" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/><line x1="60" y1="234" x2="60" y2="294" stroke="#475569" stroke-width="3"/><line id="extractDuctLine" x1="10" y1="237" x2="10" y2="291" stroke="#fbbf24" stroke-width="1.8"/></g>
               <g><rect x="470" y="234" width="70" height="60" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/><line x1="480" y1="234" x2="480" y2="294" stroke="#475569" stroke-width="3"/><line id="supplyDuctLine" x1="530" y1="237" x2="530" y2="291" stroke="#ff3b30" stroke-width="1.8"/></g>
 
-              <!-- Dynamic Multi-layer Flow Streamlines -->
+              <!-- Dynamic Multi-layer Flow Streamlines (3-Layer Volumetric Fluid with Particles) -->
               <g id="supplyStreamGroup">
-                <path id="outdoorUnderglow" d="M 0,86 C 160,86 210,135 270,175" fill="none" stroke="#0ea5e9" stroke-width="18" stroke-opacity="0.15" stroke-linecap="round"/>
-                <path id="supplyUnderglow" d="M 270,175 C 330,215 380,264 540,264" fill="none" stroke="#ff3b30" stroke-width="18" stroke-opacity="0.15" stroke-linecap="round"/>
-                <!-- Outdoor Fresh Stream (Dynamic Color) -->
-                <path id="outdoorStream" d="M 0,86 C 160,86 210,135 270,175" class="flow-stream" stroke="#38bdf8" stroke-width="4.5" stroke-dasharray="14 10"/>
-                <!-- Supply Air Stream (Dynamic Color) -->
-                <path id="supplyStream" d="M 270,175 C 330,215 380,264 540,264" class="flow-stream" stroke="#ff3b30" stroke-width="5" stroke-dasharray="14 10"/>
-                <path d="M 270,175 C 330,215 380,264 540,264" class="flow-stream-fast" stroke="rgba(255, 255, 255, 0.45)" stroke-width="2" stroke-dasharray="6 14"/>
+                <!-- Outdoor Air: Underglow + Core + Luminous Beads + Fast Micro-sparks -->
+                <path id="outdoorUnderglow" d="M 0,86 C 160,86 210,135 270,175" class="flow-underglow" stroke="#38bdf8" stroke-width="24" stroke-opacity="0.16"/>
+                <path id="outdoorCore" d="M 0,86 C 160,86 210,135 270,175" class="flow-core" stroke="#38bdf8" stroke-width="4.5" stroke-opacity="0.45"/>
+                <path id="outdoorParticles" d="M 0,86 C 160,86 210,135 270,175" class="flow-particles" stroke="#38bdf8" stroke-width="3.5" stroke-dasharray="3 24"/>
+                <path d="M 0,86 C 160,86 210,135 270,175" class="flow-particles-fast" stroke="rgba(255, 255, 255, 0.6)" stroke-width="2" stroke-dasharray="2 18"/>
+
+                <!-- Supply Air: Underglow + Core + Luminous Beads + Fast Micro-sparks -->
+                <path id="supplyUnderglow" d="M 270,175 C 330,215 380,264 540,264" class="flow-underglow" stroke="#ff3b30" stroke-width="24" stroke-opacity="0.16"/>
+                <path id="supplyCore" d="M 270,175 C 330,215 380,264 540,264" class="flow-core" stroke="#ff3b30" stroke-width="4.5" stroke-opacity="0.45"/>
+                <path id="supplyParticles" d="M 270,175 C 330,215 380,264 540,264" class="flow-particles" stroke="#ff3b30" stroke-width="3.5" stroke-dasharray="3 24"/>
+                <path d="M 270,175 C 330,215 380,264 540,264" class="flow-particles-fast" stroke="rgba(255, 255, 255, 0.6)" stroke-width="2" stroke-dasharray="2 18"/>
               </g>
 
               <g id="exhaustStreamGroup">
-                <path id="extractUnderglow" d="M 0,264 C 160,264 210,215 270,175" fill="none" stroke="#f59e0b" stroke-width="18" stroke-opacity="0.15" stroke-linecap="round"/>
-                <path id="exhaustUnderglow" d="M 270,175 C 330,135 380,86 540,86" fill="none" stroke="#60a5fa" stroke-width="18" stroke-opacity="0.15" stroke-linecap="round"/>
-                <!-- Extract Stream (Dynamic Color) -->
-                <path id="extractStream" d="M 0,264 C 160,264 210,215 270,175" class="flow-stream" stroke="#fbbf24" stroke-width="4.5" stroke-dasharray="14 10"/>
-                <!-- Exhaust Stream (Dynamic Color) -->
-                <path id="exhaustStream" d="M 270,175 C 330,135 380,86 540,86" class="flow-stream" stroke="#60a5fa" stroke-width="4.5" stroke-dasharray="14 10"/>
-                <path d="M 0,264 C 160,264 210,215 270,175" class="flow-stream-fast" stroke="rgba(255, 255, 255, 0.35)" stroke-width="1.8" stroke-dasharray="5 15"/>
+                <!-- Extract Air: Underglow + Core + Luminous Beads + Fast Micro-sparks -->
+                <path id="extractUnderglow" d="M 0,264 C 160,264 210,215 270,175" class="flow-underglow" stroke="#fbbf24" stroke-width="24" stroke-opacity="0.16"/>
+                <path id="extractCore" d="M 0,264 C 160,264 210,215 270,175" class="flow-core" stroke="#fbbf24" stroke-width="4.5" stroke-opacity="0.45"/>
+                <path id="extractParticles" d="M 0,264 C 160,264 210,215 270,175" class="flow-particles" stroke="#fbbf24" stroke-width="3.5" stroke-dasharray="3 24"/>
+                <path d="M 0,264 C 160,264 210,215 270,175" class="flow-particles-fast" stroke="rgba(255, 255, 255, 0.6)" stroke-width="2" stroke-dasharray="2 18"/>
+
+                <!-- Exhaust Air: Underglow + Core + Luminous Beads + Fast Micro-sparks -->
+                <path id="exhaustUnderglow" d="M 270,175 C 330,135 380,86 540,86" class="flow-underglow" stroke="#60a5fa" stroke-width="24" stroke-opacity="0.16"/>
+                <path id="exhaustCore" d="M 270,175 C 330,135 380,86 540,86" class="flow-core" stroke="#60a5fa" stroke-width="4.5" stroke-opacity="0.45"/>
+                <path id="exhaustParticles" d="M 270,175 C 330,135 380,86 540,86" class="flow-particles" stroke="#60a5fa" stroke-width="3.5" stroke-dasharray="3 24"/>
+                <path d="M 270,175 C 330,135 380,86 540,86" class="flow-particles-fast" stroke="rgba(255, 255, 255, 0.6)" stroke-width="2" stroke-dasharray="2 18"/>
               </g>
 
               <!-- Exhaust Fan (EAF Snail Volute & Rotor) -->
@@ -760,19 +851,19 @@ class SystemairRecuperatorCard extends HTMLElement {
               </div>
             </div>
 
-            <!-- Row 2: 3-Column Centered Toggles (100% Fit, Zero Overflow) -->
+            <!-- Row 2: 3-Column Centered Toggles (100% Fit, Zero Overflow, Whole Column Clickable) -->
             <div class="toggles-grid">
-              <div class="toggle-col">
+              <div class="toggle-col" id="heaterCol" title="Toggle Reheater">
                 <div class="ios-switch orange" id="heaterSwitch"><div class="thumb"></div></div>
-                <span class="toggle-label clickable" id="heaterLabel">Heater</span>
+                <span class="toggle-label" id="heaterLabel">Heater</span>
               </div>
-              <div class="toggle-col">
+              <div class="toggle-col" id="ecoCol" title="Toggle Eco Mode">
                 <div class="ios-switch" id="ecoSwitch"><div class="thumb"></div></div>
-                <span class="toggle-label clickable" id="ecoLabel">Eco Mode</span>
+                <span class="toggle-label" id="ecoLabel">Eco Mode</span>
               </div>
-              <div class="toggle-col">
+              <div class="toggle-col" id="freeCoolingCol" title="Toggle Free Cooling">
                 <div class="ios-switch" id="freeCoolingSwitch"><div class="thumb"></div></div>
-                <span class="toggle-label clickable" id="freeCoolingLabel">Free Cooling</span>
+                <span class="toggle-label" id="freeCoolingLabel">Free Cooling</span>
               </div>
             </div>
 
@@ -823,16 +914,16 @@ class SystemairRecuperatorCard extends HTMLElement {
       });
     });
 
-    // iOS Toggles (Switch Clicks are Strictly Isolated from more-info)
-    root.getElementById('heaterSwitch').addEventListener('click', (e) => {
+    // Toggle Column Clicks (Full Column Clickable, No False more-info Interceptions)
+    root.getElementById('heaterCol').addEventListener('click', (e) => {
       e.stopPropagation();
       this._toggleSwitch('heater');
     });
-    root.getElementById('ecoSwitch').addEventListener('click', (e) => {
+    root.getElementById('ecoCol').addEventListener('click', (e) => {
       e.stopPropagation();
       this._toggleSwitch('eco');
     });
-    root.getElementById('freeCoolingSwitch').addEventListener('click', (e) => {
+    root.getElementById('freeCoolingCol').addEventListener('click', (e) => {
       e.stopPropagation();
       this._toggleSwitch('free_cooling');
     });
@@ -856,7 +947,7 @@ class SystemairRecuperatorCard extends HTMLElement {
     if (!this._hass || !this.shadowRoot) return;
     const root = this.shadowRoot;
 
-    // 1. Discover Real Climate Entity & Target Temp
+    // 1. Climate Entity & Target Temp
     const climateId = this._getClimateId();
     const climate = climateId ? this._hass.states[climateId] : null;
     this._setEntityTarget(root.getElementById('headerClimateGroup'), climateId);
@@ -879,37 +970,45 @@ class SystemairRecuperatorCard extends HTMLElement {
     let activePreset = this._optimistic.preset_mode || (climate ? climate.attributes?.preset_mode : null) || 'auto';
     modeBadge.textContent = activePreset.charAt(0).toUpperCase() + activePreset.slice(1);
 
-    // 2. Discover Outdoor Air Temp & Dynamic Colors
-    const outdoorSensor = (this._config.outdoor_temp_entity && this._hass.states[this._config.outdoor_temp_entity])
-      ? this._config.outdoor_temp_entity
-      : this._findEntity([
-          /^sensor\.systemair_vtr.*outside_air_temperature/,
-          /^sensor\.systemair.*outside_air_temperature/,
-          /^sensor\.systemair.*outdoor_temperature/,
-          /^sensor\..*outside_temperature/,
-          /^sensor\..*outdoor_temperature/
-        ]);
+    // 2. Outdoor Air Temp & Dynamic Colors
+    const outdoorSensor = this._resolveEntity(
+      ['outdoor_temp_entity', 'outdoor_temp'],
+      [
+        /^sensor\.systemair_vtr.*outside_air_temperature/,
+        /^sensor\.systemair.*outside_air_temperature/,
+        /^sensor\.systemair.*outdoor_temperature/,
+        /^sensor\..*outside_temperature/,
+        /^sensor\..*outdoor_temperature/
+      ]
+    );
     this._setEntityTarget(root.getElementById('outdoorAirGroup'), outdoorSensor);
 
     const outdoorTemp = this._getNum(outdoorSensor, -2.5);
     const outdoorColor = this._getTempColor(outdoorTemp);
     root.getElementById('outdoorTempSvg').textContent = outdoorTemp !== null ? `${outdoorTemp.toFixed(1)}°C` : '--°C';
     root.getElementById('outdoorTempSvg').style.fill = outdoorColor;
-    root.getElementById('outdoorStream').style.stroke = outdoorColor;
     root.getElementById('outdoorUnderglow').style.stroke = outdoorColor;
+    root.getElementById('outdoorCore').style.stroke = outdoorColor;
+    root.getElementById('outdoorParticles').style.stroke = outdoorColor;
     root.getElementById('outdoorDuctLine').style.stroke = outdoorColor;
 
-    // 3. Discover Exhaust Air Temp & Dynamic Colors
-    const exhaustSensor = this._findEntity([
-      /^sensor\.systemair_vtr.*exhaust_air_temperature/,
-      /^sensor\.systemair.*exhaust_air_temperature/,
-      /^sensor\..*exhaust_temperature/
-    ]);
-    const exhaustFlowSensor = this._findEntity([
-      /^sensor\.systemair_vtr.*exhaust_airflow/,
-      /^sensor\.systemair.*exhaust_airflow/,
-      /^sensor\..*exhaust_airflow/
-    ]);
+    // 3. Exhaust Air Temp & Dynamic Colors
+    const exhaustSensor = this._resolveEntity(
+      ['exhaust_temp_entity', 'exhaust_temp'],
+      [
+        /^sensor\.systemair_vtr.*exhaust_air_temperature/,
+        /^sensor\.systemair.*exhaust_air_temperature/,
+        /^sensor\..*exhaust_temperature/
+      ]
+    );
+    const exhaustFlowSensor = this._resolveEntity(
+      ['exhaust_flow_entity', 'exhaust_flow'],
+      [
+        /^sensor\.systemair_vtr.*exhaust_airflow/,
+        /^sensor\.systemair.*exhaust_airflow/,
+        /^sensor\..*exhaust_airflow/
+      ]
+    );
     this._setEntityTarget(root.getElementById('exhaustAirGroup'), exhaustSensor || exhaustFlowSensor);
 
     const exhaustTemp = this._getNum(exhaustSensor, 17.8);
@@ -918,26 +1017,36 @@ class SystemairRecuperatorCard extends HTMLElement {
     root.getElementById('exhaustTempSvg').textContent = exhaustTemp !== null ? `${exhaustTemp.toFixed(1)}°C` : '--°C';
     root.getElementById('exhaustTempSvg').style.fill = exhaustColor;
     root.getElementById('exhaustFlowSvg').textContent = exhaustFlow !== null ? `${Math.round(exhaustFlow)} m³/h` : '-- m³/h';
-    root.getElementById('exhaustStream').style.stroke = exhaustColor;
     root.getElementById('exhaustUnderglow').style.stroke = exhaustColor;
+    root.getElementById('exhaustCore').style.stroke = exhaustColor;
+    root.getElementById('exhaustParticles').style.stroke = exhaustColor;
     root.getElementById('exhaustDuctLine').style.stroke = exhaustColor;
 
-    // 4. Discover Extract Air Temp & Dynamic Colors
-    const extractSensor = this._findEntity([
-      /^sensor\.systemair_vtr.*extract_air_temperature/,
-      /^sensor\.systemair.*extract_air_temperature/,
-      /^sensor\..*extract_temperature/
-    ]);
-    const extractRhSensor = this._findEntity([
-      /^sensor\.systemair_vtr.*extract_air_relative_humidity/,
-      /^sensor\.systemair.*relative_humidity/,
-      /^sensor\..*humidity/
-    ]);
-    const extractCo2Sensor = this._findEntity([
-      /^sensor\.systemair_vtr.*co2_level/,
-      /^sensor\.systemair.*co2/,
-      /^sensor\..*co2/
-    ]);
+    // 4. Extract Air Temp & Dynamic Colors
+    const extractSensor = this._resolveEntity(
+      ['extract_temp_entity', 'extract_temp'],
+      [
+        /^sensor\.systemair_vtr.*extract_air_temperature/,
+        /^sensor\.systemair.*extract_air_temperature/,
+        /^sensor\..*extract_temperature/
+      ]
+    );
+    const extractRhSensor = this._resolveEntity(
+      ['extract_humidity_entity', 'extract_rh_entity', 'humidity_entity'],
+      [
+        /^sensor\.systemair_vtr.*extract_air_relative_humidity/,
+        /^sensor\.systemair.*relative_humidity/,
+        /^sensor\..*humidity/
+      ]
+    );
+    const extractCo2Sensor = this._resolveEntity(
+      ['extract_co2_entity', 'co2_entity'],
+      [
+        /^sensor\.systemair_vtr.*co2_level/,
+        /^sensor\.systemair.*co2/,
+        /^sensor\..*co2/
+      ]
+    );
     this._setEntityTarget(root.getElementById('extractAirGroup'), extractSensor);
     this._setEntityTarget(root.getElementById('extractRhSvg'), extractRhSensor);
     this._setEntityTarget(root.getElementById('extractCo2Svg'), extractCo2Sensor);
@@ -950,21 +1059,28 @@ class SystemairRecuperatorCard extends HTMLElement {
     root.getElementById('extractTempSvg').style.fill = extractColor;
     root.getElementById('extractRhSvg').textContent = extractRh !== null ? `${Math.round(extractRh)}% RH` : '--% RH';
     root.getElementById('extractCo2Svg').textContent = extractCo2 !== null ? `${Math.round(extractCo2)} ppm CO₂` : '-- ppm CO₂';
-    root.getElementById('extractStream').style.stroke = extractColor;
     root.getElementById('extractUnderglow').style.stroke = extractColor;
+    root.getElementById('extractCore').style.stroke = extractColor;
+    root.getElementById('extractParticles').style.stroke = extractColor;
     root.getElementById('extractDuctLine').style.stroke = extractColor;
 
-    // 5. Discover Supply Air Temp & Dynamic Colors
-    const supplySensor = this._findEntity([
-      /^sensor\.systemair_vtr.*supply_air_temperature/,
-      /^sensor\.systemair.*supply_air_temperature/,
-      /^sensor\..*supply_temperature/
-    ]);
-    const supplyFlowSensor = this._findEntity([
-      /^sensor\.systemair_vtr.*supply_airflow/,
-      /^sensor\.systemair.*supply_airflow/,
-      /^sensor\..*supply_airflow/
-    ]);
+    // 5. Supply Air Temp & Dynamic Colors
+    const supplySensor = this._resolveEntity(
+      ['supply_temp_entity', 'supply_temp'],
+      [
+        /^sensor\.systemair_vtr.*supply_air_temperature/,
+        /^sensor\.systemair.*supply_air_temperature/,
+        /^sensor\..*supply_temperature/
+      ]
+    );
+    const supplyFlowSensor = this._resolveEntity(
+      ['supply_flow_entity', 'supply_flow'],
+      [
+        /^sensor\.systemair_vtr.*supply_airflow/,
+        /^sensor\.systemair.*supply_airflow/,
+        /^sensor\..*supply_airflow/
+      ]
+    );
     this._setEntityTarget(root.getElementById('supplyAirGroup'), supplySensor || supplyFlowSensor);
 
     const supplyTemp = this._getNum(supplySensor, 20.5);
@@ -973,21 +1089,28 @@ class SystemairRecuperatorCard extends HTMLElement {
     root.getElementById('supplyTempSvg').textContent = supplyTemp !== null ? `${supplyTemp.toFixed(1)}°C` : '--°C';
     root.getElementById('supplyTempSvg').style.fill = supplyColor;
     root.getElementById('supplyFlowSvg').textContent = supplyFlow !== null ? `${Math.round(supplyFlow)} m³/h` : '-- m³/h';
-    root.getElementById('supplyStream').style.stroke = supplyColor;
     root.getElementById('supplyUnderglow').style.stroke = supplyColor;
+    root.getElementById('supplyCore').style.stroke = supplyColor;
+    root.getElementById('supplyParticles').style.stroke = supplyColor;
     root.getElementById('supplyDuctLine').style.stroke = supplyColor;
 
     // 6. Centrifugal Fan Tachometers (RPM) & Spin Animation
-    const safRpmSensor = this._findEntity([
-      /^sensor\.systemair_vtr.*supply_air_fan_rpm/,
-      /^sensor\.systemair.*supply.*fan_rpm/,
-      /^sensor\..*supply.*fan.*rpm/
-    ]);
-    const eafRpmSensor = this._findEntity([
-      /^sensor\.systemair_vtr.*extract_air_fan_rpm/,
-      /^sensor\.systemair.*extract.*fan_rpm/,
-      /^sensor\..*extract.*fan.*rpm/
-    ]);
+    const safRpmSensor = this._resolveEntity(
+      ['saf_rpm_entity', 'supply_rpm_entity', 'supply_fan_rpm_entity'],
+      [
+        /^sensor\.systemair_vtr.*supply_air_fan_rpm/,
+        /^sensor\.systemair.*supply.*fan_rpm/,
+        /^sensor\..*supply.*fan.*rpm/
+      ]
+    );
+    const eafRpmSensor = this._resolveEntity(
+      ['eaf_rpm_entity', 'extract_rpm_entity', 'extract_fan_rpm_entity'],
+      [
+        /^sensor\.systemair_vtr.*extract_air_fan_rpm/,
+        /^sensor\.systemair.*extract.*fan_rpm/,
+        /^sensor\..*extract.*fan.*rpm/
+      ]
+    );
     this._setEntityTarget(root.getElementById('supplyFanGroup'), safRpmSensor);
     this._setEntityTarget(root.getElementById('extractFanGroup'), eafRpmSensor);
     this._setEntityTarget(root.getElementById('extractFanRpmGroup'), eafRpmSensor);
@@ -1011,10 +1134,14 @@ class SystemairRecuperatorCard extends HTMLElement {
     }
 
     // 7. Rotary Heat Exchanger Dynamic Efficiency
-    const rotorActiveSensor = this._findEntity([
-      /^binary_sensor\.systemair_vtr.*heat_recovery_active/,
-      /^binary_sensor\.systemair.*heat_recovery_active/
-    ]);
+    const rotorActiveSensor = this._resolveEntity(
+      ['heat_recovery_entity', 'rotor_active_entity', 'rotor_entity'],
+      [
+        /^binary_sensor\.systemair_vtr.*heat_recovery_active/,
+        /^binary_sensor\.systemair.*heat_recovery_active/,
+        /^binary_sensor\..*heat_recovery/
+      ]
+    );
     this._setEntityTarget(root.getElementById('rotorGroup'), rotorActiveSensor || climateId);
 
     const rotorWheel = root.getElementById('rotorWheel');
@@ -1041,11 +1168,14 @@ class SystemairRecuperatorCard extends HTMLElement {
     }
 
     // 8. Filter Remaining Life (Seconds to Days conversion)
-    const filterSensor = this._findEntity([
-      /^sensor\.systemair_vtr.*filter_remaining_time/,
-      /^sensor\.systemair.*filter_remaining_time/,
-      /^sensor\..*filter_remaining/
-    ]);
+    const filterSensor = this._resolveEntity(
+      ['filter_entity', 'filter_remaining_entity', 'filter_days_entity'],
+      [
+        /^sensor\.systemair_vtr.*filter_remaining_time/,
+        /^sensor\.systemair.*filter_remaining_time/,
+        /^sensor\..*filter_remaining/
+      ]
+    );
     this._setEntityTarget(root.getElementById('filterRemainingGroup'), filterSensor);
 
     const filterRaw = this._getNum(filterSensor, null);
@@ -1056,16 +1186,12 @@ class SystemairRecuperatorCard extends HTMLElement {
     root.getElementById('filterDaysSvg').textContent = filterDays !== null ? `${filterDays} days` : '-- days';
 
     // 9. Reheater Coil
-    const heaterSwitch = this._findEntity([
-      /^switch\.systemair.*heater/,
-      /^switch\.systemair_vtr.*heater/
-    ]);
+    const heaterSwitch = this._getSwitchEntity('heater');
     this._setEntityTarget(root.getElementById('heaterGroup'), heaterSwitch);
-    this._setEntityTarget(root.getElementById('heaterLabel'), heaterSwitch);
 
     const isHeaterOn = (this._optimistic.heater !== undefined)
       ? this._optimistic.heater
-      : (this._getState(heaterSwitch) === 'on');
+      : (heaterSwitch ? this._getState(heaterSwitch) === 'on' : false);
 
     const coil = root.getElementById('heaterCoil');
     const aura = root.getElementById('heaterAura');
@@ -1079,19 +1205,17 @@ class SystemairRecuperatorCard extends HTMLElement {
     root.getElementById('heaterSwitch').classList.toggle('on', isHeaterOn);
 
     // 10. Eco Mode & Free Cooling Switches
-    const ecoSwitch = this._findEntity([/^switch\.systemair.*eco_mode/, /^switch\.systemair_vtr.*eco_mode/]);
-    const freeCoolingSwitch = this._findEntity([/^switch\.systemair.*free_cooling/, /^switch\.systemair_vtr.*free_cooling/]);
-    this._setEntityTarget(root.getElementById('ecoLabel'), ecoSwitch);
-    this._setEntityTarget(root.getElementById('freeCoolingLabel'), freeCoolingSwitch);
+    const ecoSwitch = this._getSwitchEntity('eco');
+    const freeCoolingSwitch = this._getSwitchEntity('free_cooling');
 
     const isEcoOn = (this._optimistic.eco !== undefined)
       ? this._optimistic.eco
-      : (this._getState(ecoSwitch) === 'on');
+      : (ecoSwitch ? this._getState(ecoSwitch) === 'on' : false);
     root.getElementById('ecoSwitch').classList.toggle('on', isEcoOn);
 
     const isFreeCoolingOn = (this._optimistic.free_cooling !== undefined)
       ? this._optimistic.free_cooling
-      : (this._getState(freeCoolingSwitch) === 'on');
+      : (freeCoolingSwitch ? this._getState(freeCoolingSwitch) === 'on' : false);
     root.getElementById('freeCoolingSwitch').classList.toggle('on', isFreeCoolingOn);
 
     // 11. Fan Speed Pills
@@ -1171,40 +1295,27 @@ class SystemairRecuperatorCard extends HTMLElement {
   }
 
   _toggleSwitch(type) {
-    let entityId = null;
+    const entityId = this._getSwitchEntity(type);
     let curState = false;
 
-    if (type === 'heater') {
-      entityId = this._findEntity([/^switch\.systemair.*heater/, /^switch\.systemair_vtr.*heater/]);
-      curState = (this._optimistic.heater !== undefined)
-        ? this._optimistic.heater
-        : (this._getState(entityId) === 'on');
-      this._optimistic.heater = !curState;
-    } else if (type === 'eco') {
-      entityId = this._findEntity([/^switch\.systemair.*eco_mode/, /^switch\.systemair_vtr.*eco_mode/]);
-      curState = (this._optimistic.eco !== undefined)
-        ? this._optimistic.eco
-        : (this._getState(entityId) === 'on');
-      this._optimistic.eco = !curState;
-    } else if (type === 'free_cooling') {
-      entityId = this._findEntity([/^switch\.systemair.*free_cooling/, /^switch\.systemair_vtr.*free_cooling/]);
-      curState = (this._optimistic.free_cooling !== undefined)
-        ? this._optimistic.free_cooling
-        : (this._getState(entityId) === 'on');
-      this._optimistic.free_cooling = !curState;
+    if (this._optimistic[type] !== undefined) {
+      curState = this._optimistic[type];
+    } else if (entityId && this._hass && this._hass.states[entityId]) {
+      curState = (this._hass.states[entityId].state === 'on');
     }
 
+    const newState = !curState;
+    this._optimistic[type] = newState;
     this._updateValues();
 
     if (entityId && this._hass) {
-      const service = !curState ? 'turn_on' : 'turn_off';
-      this._hass.callService('switch', service, { entity_id: entityId });
+      const service = newState ? 'turn_on' : 'turn_off';
+      const [domain] = entityId.split('.');
+      this._hass.callService(domain || 'switch', service, { entity_id: entityId });
     }
 
     setTimeout(() => {
-      if (type === 'heater') delete this._optimistic.heater;
-      if (type === 'eco') delete this._optimistic.eco;
-      if (type === 'free_cooling') delete this._optimistic.free_cooling;
+      delete this._optimistic[type];
       this._updateValues();
     }, 3500);
   }
@@ -1213,38 +1324,76 @@ class SystemairRecuperatorCard extends HTMLElement {
 // Visual Card Editor (systemair-recuperator-card-editor)
 class SystemairRecuperatorCardEditor extends HTMLElement {
   setConfig(config) {
-    this._config = config;
-    this._render();
+    this._config = config ? { ...config } : {};
+    if (this._hass) {
+      this._render();
+    }
   }
 
   set hass(hass) {
     this._hass = hass;
-    this._render();
+    if (this._config) {
+      this._render();
+    }
   }
 
   _render() {
-    if (!this._hass) return;
-    this.innerHTML = `
-      <div style="padding: 12px 4px; display: flex; flex-direction: column; gap: 14px;">
-        <div>
-          <label style="font-weight: 600; display: block; margin-bottom: 6px;">Title</label>
-          <input type="text" id="inputTitle" value="${this._config.title || 'Systemair SAVE'}" style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #475569; background: #1e293b; color: #fff; box-sizing: border-box;"/>
-        </div>
-        <div>
-          <label style="font-weight: 600; display: block; margin-bottom: 6px;">Outdoor Temperature Entity (Optional External Sensor)</label>
-          <input type="text" id="inputOutdoorTemp" placeholder="e.g. sensor.street_temperature" value="${this._config.outdoor_temp_entity || ''}" style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #475569; background: #1e293b; color: #fff; box-sizing: border-box;"/>
-          <small style="color: #94a3b8; display: block; margin-top: 4px;">If specified, this sensor will be used for displaying Outdoor Air temperature and calculating heat recovery efficiency.</small>
-        </div>
+    if (!this._hass || !this._config) return;
+    const cfg = this._config;
+
+    const row = (label, key, placeholder = '', hint = '') => `
+      <div style="display: flex; flex-direction: column; gap: 4px;">
+        <label style="font-size: 0.85rem; font-weight: 600; color: #cbd5e1;">${label}</label>
+        <input type="text" data-key="${key}" value="${cfg[key] || ''}" placeholder="${placeholder}"
+          style="width: 100%; padding: 7px 10px; border-radius: 6px; border: 1px solid #475569; background: #1e293b; color: #fff; font-size: 0.85rem; box-sizing: border-box;"/>
+        ${hint ? `<small style="color: #94a3b8; font-size: 0.75rem;">${hint}</small>` : ''}
       </div>
     `;
 
-    this.querySelector('#inputTitle').addEventListener('input', (e) => {
-      this._config = { ...this._config, title: e.target.value };
-      this._fireChanged();
-    });
-    this.querySelector('#inputOutdoorTemp').addEventListener('input', (e) => {
-      this._config = { ...this._config, outdoor_temp_entity: e.target.value };
-      this._fireChanged();
+    this.innerHTML = `
+      <div style="padding: 10px 4px; display: flex; flex-direction: column; gap: 14px; font-family: inherit;">
+        <div style="font-weight: 700; font-size: 1.05rem; color: #f8fafc; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px;">
+          Card Main Settings
+        </div>
+        ${row('Title', 'title', 'Systemair SAVE')}
+        ${row('Climate Entity', 'climate', 'climate.systemair', 'Main climate device for target temp and fan mode.')}
+
+        <div style="font-weight: 700; font-size: 0.95rem; color: #f8fafc; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 4px; margin-top: 6px;">
+          Air Temperatures & Flows
+        </div>
+        ${row('Outdoor Air Temp Entity', 'outdoor_temp_entity', 'sensor.outside_temperature_min', 'Duct 1: Top-Left intake.')}
+        ${row('Supply Air Temp Entity', 'supply_temp_entity', 'sensor.supply_air_temperature', 'Duct 4: Bottom-Right to rooms.')}
+        ${row('Supply Airflow (m³/h)', 'supply_flow_entity', 'sensor.supply_airflow')}
+        ${row('Extract Air Temp Entity', 'extract_temp_entity', 'sensor.extract_air_temperature', 'Duct 3: Bottom-Left from rooms.')}
+        ${row('Extract Humidity Entity (% RH)', 'extract_humidity_entity', 'sensor.extract_relative_humidity')}
+        ${row('Extract CO₂ Entity (ppm)', 'extract_co2_entity', 'sensor.extract_co2')}
+        ${row('Exhaust Air Temp Entity', 'exhaust_temp_entity', 'sensor.exhaust_air_temperature', 'Duct 2: Top-Right discharge.')}
+        ${row('Exhaust Airflow (m³/h)', 'exhaust_flow_entity', 'sensor.exhaust_airflow')}
+
+        <div style="font-weight: 700; font-size: 0.95rem; color: #f8fafc; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 4px; margin-top: 6px;">
+          Fans, Rotor & Filter
+        </div>
+        ${row('Supply Fan RPM Entity (SAF)', 'saf_rpm_entity', 'sensor.supply_fan_rpm')}
+        ${row('Extract Fan RPM Entity (EAF)', 'eaf_rpm_entity', 'sensor.extract_fan_rpm')}
+        ${row('Heat Recovery Binary Sensor', 'heat_recovery_entity', 'binary_sensor.heat_recovery_active')}
+        ${row('Filter Remaining Life Entity', 'filter_entity', 'sensor.filter_remaining_time')}
+
+        <div style="font-weight: 700; font-size: 0.95rem; color: #f8fafc; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 4px; margin-top: 6px;">
+          Functional Switches
+        </div>
+        ${row('Heater Switch (Reheater)', 'heater_switch', 'switch.systemair_heater')}
+        ${row('Eco Mode Switch', 'eco_switch', 'switch.systemair_eco_mode')}
+        ${row('Free Cooling Switch', 'free_cooling_switch', 'switch.systemair_free_cooling')}
+      </div>
+    `;
+
+    this.querySelectorAll('input[data-key]').forEach(input => {
+      input.addEventListener('input', (e) => {
+        const key = e.target.getAttribute('data-key');
+        const val = e.target.value.trim();
+        this._config = { ...this._config, [key]: val };
+        this._fireChanged();
+      });
     });
   }
 
