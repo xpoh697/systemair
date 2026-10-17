@@ -2,14 +2,15 @@
   "domain": "systemair",
   "name": "Systemair",
   "codeowners": [
+    "@xpoh697",
     "@AN3Orik",
     "@bstenborg",
     "@tesharp"
   ],
   "config_flow": true,
-  "documentation": "https://github.com/AN3Orik/systemair",
+  "documentation": "https://github.com/xpoh697/systemair",
   "iot_class": "local_polling",
-  "issue_tracker": "https://github.com/AN3Orik/systemair/issues",
+  "issue_tracker": "https://github.com/xpoh697/systemair/issues",
   "requirements": [
     "pymodbus>=3.11.2,<3.14",
     "aiohttp",
