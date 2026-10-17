@@ -1,9 +1,10 @@
 /**
  * Systemair Recuperator Lovelace Card
  * Custom Home Assistant card for Systemair SAVE ventilation units with heat recovery.
- * Fully matching visual mockup aesthetics with fluid airflows, realistic snail blowers,
- * dynamic supply air temperature gradient, active serpentine reheater coil, and iOS-style toggles.
- * Version: 1.0.28
+ * Fully matching visual mockup aesthetics: edge-to-edge large schematic, fluid airflows,
+ * realistic snail blowers, dynamic supply air thermal gradient, active serpentine reheater,
+ * and responsive iOS-style controls.
+ * Version: 1.0.29
  */
 
 class SystemairRecuperatorCard extends HTMLElement {
@@ -119,7 +120,7 @@ class SystemairRecuperatorCard extends HTMLElement {
           border-radius: 24px;
           box-shadow: 0 20px 45px -12px rgba(0, 0, 0, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.1);
           color: #f1f5f9;
-          padding: 20px;
+          padding: 14px 10px 14px 10px;
           position: relative;
           overflow: hidden;
           box-sizing: border-box;
@@ -144,7 +145,7 @@ class SystemairRecuperatorCard extends HTMLElement {
           z-index: 1;
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 10px;
         }
 
         /* Header Bar */
@@ -152,7 +153,7 @@ class SystemairRecuperatorCard extends HTMLElement {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding-bottom: 2px;
+          padding: 0 4px 2px 4px;
           flex-wrap: nowrap;
         }
         .header-left {
@@ -242,11 +243,12 @@ class SystemairRecuperatorCard extends HTMLElement {
           white-space: nowrap;
         }
 
-        /* SVG Schematic Container */
+        /* SVG Schematic Container - FULL CARD WIDTH */
         .schematic-box {
           position: relative;
           width: 100%;
-          padding: 2px 0;
+          padding: 0;
+          margin: 0;
         }
         svg.schematic {
           width: 100%;
@@ -294,7 +296,7 @@ class SystemairRecuperatorCard extends HTMLElement {
 
         /* Rotary Wheel Spin */
         .rotor-spin-group {
-          transform-origin: 340px 165px;
+          transform-origin: 300px 175px;
           animation: rotorSpin 8s linear infinite;
           will-change: transform;
         }
@@ -306,16 +308,16 @@ class SystemairRecuperatorCard extends HTMLElement {
         /* Serpentine Electric Reheater Coil */
         .heater-coil {
           stroke: #64748b;
-          stroke-width: 3.5;
+          stroke-width: 3.8;
           fill: none;
           stroke-linecap: round;
           stroke-linejoin: round;
-          transition: all 0.4s ease;
+          transition: all 0.3s ease;
         }
         .heater-coil.active {
           stroke: #ff7a18;
-          stroke-width: 4.5;
-          filter: drop-shadow(0 0 10px rgba(255, 122, 24, 0.95)) drop-shadow(0 0 18px rgba(255, 90, 0, 0.65));
+          stroke-width: 4.8;
+          filter: drop-shadow(0 0 10px rgba(255, 122, 24, 0.95)) drop-shadow(0 0 20px rgba(255, 90, 0, 0.7));
           animation: heaterPulse 2s ease-in-out infinite;
         }
         @keyframes heaterPulse {
@@ -333,9 +335,9 @@ class SystemairRecuperatorCard extends HTMLElement {
         .controls-deck {
           display: flex;
           flex-direction: column;
-          gap: 12px;
-          margin-top: 4px;
-          padding-top: 14px;
+          gap: 10px;
+          margin-top: 2px;
+          padding-top: 12px;
           border-top: 1px solid rgba(255, 255, 255, 0.07);
         }
 
@@ -345,12 +347,13 @@ class SystemairRecuperatorCard extends HTMLElement {
           align-items: center;
           justify-content: space-between;
           flex-wrap: wrap;
-          gap: 12px;
+          gap: 10px;
+          padding: 0 2px;
         }
         .fan-speed-group {
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 8px;
         }
         .deck-label {
           font-size: 0.84rem;
@@ -372,7 +375,7 @@ class SystemairRecuperatorCard extends HTMLElement {
           color: #94a3b8;
           font-size: 0.78rem;
           font-weight: 600;
-          padding: 5px 12px;
+          padding: 5px 11px;
           border-radius: 9px;
           cursor: pointer;
           transition: all 0.2s;
@@ -392,12 +395,12 @@ class SystemairRecuperatorCard extends HTMLElement {
         .toggles-group {
           display: flex;
           align-items: center;
-          gap: 16px;
+          gap: 14px;
         }
         .toggle-item {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 7px;
           cursor: pointer;
           user-select: none;
         }
@@ -408,9 +411,9 @@ class SystemairRecuperatorCard extends HTMLElement {
           white-space: nowrap;
         }
         .ios-switch {
-          width: 42px;
-          height: 23px;
-          border-radius: 12px;
+          width: 40px;
+          height: 22px;
+          border-radius: 11px;
           background: #252b36;
           border: 1px solid rgba(255, 255, 255, 0.1);
           position: relative;
@@ -418,8 +421,8 @@ class SystemairRecuperatorCard extends HTMLElement {
           flex-shrink: 0;
         }
         .ios-switch .thumb {
-          width: 17px;
-          height: 17px;
+          width: 16px;
+          height: 16px;
           border-radius: 50%;
           background: #ffffff;
           position: absolute;
@@ -439,7 +442,7 @@ class SystemairRecuperatorCard extends HTMLElement {
           box-shadow: 0 0 10px rgba(255, 152, 0, 0.6);
         }
         .ios-switch.on .thumb {
-          transform: translateX(19px);
+          transform: translateX(18px);
         }
 
         /* Preset Modes Grid (Exactly 5 columns, 100% width, zero cutoffs) */
@@ -455,7 +458,7 @@ class SystemairRecuperatorCard extends HTMLElement {
           background: rgba(0, 0, 0, 0.32);
           border: 1px solid rgba(255, 255, 255, 0.07);
           color: #94a3b8;
-          font-size: clamp(0.68rem, 2.2vw, 0.78rem);
+          font-size: clamp(0.68rem, 2.2vw, 0.8rem);
           font-weight: 500;
           padding: 6px 2px;
           border-radius: 12px;
@@ -511,9 +514,9 @@ class SystemairRecuperatorCard extends HTMLElement {
             </div>
           </div>
 
-          <!-- Central Architectural Unit Cutaway SVG -->
+          <!-- Central Architectural Unit Cutaway SVG - MASSIVE FULL-WIDTH SCHEMATIC -->
           <div class="schematic-box">
-            <svg class="schematic" viewBox="0 0 700 340" xmlns="http://www.w3.org/2000/svg">
+            <svg class="schematic" viewBox="0 0 600 350" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <!-- Duct Glass/Metallic Gradient -->
                 <linearGradient id="ductGrad" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -545,193 +548,190 @@ class SystemairRecuperatorCard extends HTMLElement {
 
                 <!-- Active Electric Heater Radial Glow Aura -->
                 <radialGradient id="heaterRadialGlow" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stop-color="#ff7a18" stop-opacity="0.8"/>
-                  <stop offset="50%" stop-color="#ff9800" stop-opacity="0.4"/>
+                  <stop offset="0%" stop-color="#ff7a18" stop-opacity="0.85"/>
+                  <stop offset="50%" stop-color="#ff9800" stop-opacity="0.45"/>
                   <stop offset="100%" stop-color="#ff5722" stop-opacity="0"/>
                 </radialGradient>
               </defs>
 
-              <!-- 1. Systemair Unit Chassis Frame -->
-              <rect x="150" y="25" width="380" height="280" rx="20" fill="#141822" stroke="#252d3d" stroke-width="2.5"/>
-              <rect x="156" y="31" width="368" height="268" rx="16" fill="#181d28" stroke="#1f2633" stroke-width="1.5"/>
+              <!-- 1. Systemair Unit Chassis Frame (Expanded to 410px width) -->
+              <rect x="95" y="20" width="410" height="310" rx="20" fill="#141822" stroke="#252d3d" stroke-width="2.5"/>
+              <rect x="102" y="27" width="396" height="296" rx="16" fill="#181d28" stroke="#1f2633" stroke-width="1.5"/>
 
               <!-- Internal Structural Rib Dividers -->
-              <line x1="156" y1="165" x2="265" y2="165" stroke="#273142" stroke-width="2.5"/>
-              <line x1="415" y1="165" x2="524" y2="165" stroke="#273142" stroke-width="2.5"/>
-              <line x1="340" y1="31" x2="340" y2="90" stroke="#273142" stroke-width="2.5"/>
-              <line x1="340" y1="240" x2="340" y2="299" stroke="#273142" stroke-width="2.5"/>
+              <line x1="102" y1="175" x2="225" y2="175" stroke="#273142" stroke-width="2.5"/>
+              <line x1="375" y1="175" x2="498" y2="175" stroke="#273142" stroke-width="2.5"/>
+              <line x1="300" y1="27" x2="300" y2="100" stroke="#273142" stroke-width="2.5"/>
+              <line x1="300" y1="250" x2="300" y2="323" stroke="#273142" stroke-width="2.5"/>
 
-              <!-- 2. Four Cylindrical Duct Collars -->
-              <!-- Top-Left: Outdoor Air Duct -->
+              <!-- 2. Four Edge-to-Edge Cylindrical Duct Collars -->
+              <!-- Top-Left: Outdoor Air Duct (x=0..105) -->
               <g>
-                <rect x="25" y="55" width="135" height="50" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/>
-                <line x1="150" y1="55" x2="150" y2="105" stroke="#475569" stroke-width="3"/>
-                <line x1="40" y1="58" x2="40" y2="102" stroke="#38bdf8" stroke-width="1.5" stroke-opacity="0.5"/>
+                <rect x="0" y="50" width="105" height="65" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/>
+                <line x1="95" y1="50" x2="95" y2="115" stroke="#475569" stroke-width="3"/>
+                <line x1="12" y1="53" x2="12" y2="112" stroke="#38bdf8" stroke-width="1.5" stroke-opacity="0.5"/>
               </g>
 
-              <!-- Top-Right: Exhaust Air Duct -->
+              <!-- Top-Right: Exhaust Air Duct (x=495..600) -->
               <g>
-                <rect x="520" y="55" width="135" height="50" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/>
-                <line x1="530" y1="55" x2="530" y2="105" stroke="#475569" stroke-width="3"/>
-                <line x1="640" y1="58" x2="640" y2="102" stroke="#60a5fa" stroke-width="1.5" stroke-opacity="0.5"/>
+                <rect x="495" y="50" width="105" height="65" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/>
+                <line x1="505" y1="50" x2="505" y2="115" stroke="#475569" stroke-width="3"/>
+                <line x1="588" y1="53" x2="588" y2="112" stroke="#60a5fa" stroke-width="1.5" stroke-opacity="0.5"/>
               </g>
 
-              <!-- Bottom-Left: Extract Air Duct -->
+              <!-- Bottom-Left: Extract Air Duct (x=0..105) -->
               <g>
-                <rect x="25" y="225" width="135" height="50" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/>
-                <line x1="150" y1="225" x2="150" y2="275" stroke="#475569" stroke-width="3"/>
-                <line x1="40" y1="228" x2="40" y2="272" stroke="#fbbf24" stroke-width="1.5" stroke-opacity="0.5"/>
+                <rect x="0" y="235" width="105" height="65" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/>
+                <line x1="95" y1="235" x2="95" y2="300" stroke="#475569" stroke-width="3"/>
+                <line x1="12" y1="238" x2="12" y2="297" stroke="#fbbf24" stroke-width="1.5" stroke-opacity="0.5"/>
               </g>
 
-              <!-- Bottom-Right: Supply Air Duct -->
+              <!-- Bottom-Right: Supply Air Duct (x=495..600) -->
               <g>
-                <rect x="520" y="225" width="135" height="50" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/>
-                <line x1="530" y1="225" x2="530" y2="275" stroke="#475569" stroke-width="3"/>
-                <line x1="640" y1="228" x2="640" y2="272" stroke="var(--supply-flow-end, #ff3b30)" stroke-width="1.5" stroke-opacity="0.5"/>
+                <rect x="495" y="235" width="105" height="65" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/>
+                <line x1="505" y1="235" x2="505" y2="300" stroke="#475569" stroke-width="3"/>
+                <line x1="588" y1="238" x2="588" y2="297" stroke="var(--supply-flow-end, #ff3b30)" stroke-width="1.5" stroke-opacity="0.5"/>
               </g>
 
-              <!-- 3. Fluid Airflow Streams -->
+              <!-- 3. Broad Volumetric Fluid Airflow Streams -->
               <!-- Outdoor Air Stream (Top-Left -> Center Rotor) -->
-              <path d="M 40,80 C 170,80 230,105 285,150" fill="none" stroke="#06b6d4" stroke-width="26" stroke-opacity="0.08"/>
-              <path d="M 40,80 C 170,80 230,105 285,150" fill="none" stroke="#06b6d4" stroke-width="10" stroke-opacity="0.32"/>
-              <path class="flow-stream flow-outdoor" d="M 40,80 C 170,80 230,105 285,150" stroke-width="3" stroke-dasharray="14 8"/>
-              <path class="flow-stream-fast flow-outdoor" d="M 40,84 C 170,84 228,108 285,153" stroke-width="1.4" stroke-dasharray="4 6" stroke-opacity="0.7"/>
+              <path d="M 5,82 C 120,82 180,105 240,155" fill="none" stroke="#06b6d4" stroke-width="32" stroke-opacity="0.09"/>
+              <path d="M 5,82 C 120,82 180,105 240,155" fill="none" stroke="#06b6d4" stroke-width="12" stroke-opacity="0.35"/>
+              <path class="flow-stream flow-outdoor" d="M 5,82 C 120,82 180,105 240,155" stroke-width="3.2" stroke-dasharray="14 8"/>
+              <path class="flow-stream-fast flow-outdoor" d="M 5,86 C 120,86 178,109 238,158" stroke-width="1.5" stroke-dasharray="4 6" stroke-opacity="0.8"/>
 
               <!-- Extract Air Stream (Bottom-Left -> Center Rotor) -->
-              <path d="M 40,250 C 170,250 230,225 285,180" fill="none" stroke="#f59e0b" stroke-width="26" stroke-opacity="0.08"/>
-              <path d="M 40,250 C 170,250 230,225 285,180" fill="none" stroke="#f59e0b" stroke-width="10" stroke-opacity="0.32"/>
-              <path class="flow-stream flow-extract" d="M 40,250 C 170,250 230,225 285,180" stroke-width="3" stroke-dasharray="14 8"/>
-              <path class="flow-stream-fast flow-extract" d="M 40,246 C 170,246 228,222 285,177" stroke-width="1.4" stroke-dasharray="4 6" stroke-opacity="0.7"/>
+              <path d="M 5,268 C 120,268 180,245 240,195" fill="none" stroke="#f59e0b" stroke-width="32" stroke-opacity="0.09"/>
+              <path d="M 5,268 C 120,268 180,245 240,195" fill="none" stroke="#f59e0b" stroke-width="12" stroke-opacity="0.35"/>
+              <path class="flow-stream flow-extract" d="M 5,268 C 120,268 180,245 240,195" stroke-width="3.2" stroke-dasharray="14 8"/>
+              <path class="flow-stream-fast flow-extract" d="M 5,264 C 120,264 178,241 238,192" stroke-width="1.5" stroke-dasharray="4 6" stroke-opacity="0.8"/>
 
-              <!-- Exhaust Air Stream (Center Rotor -> Top Fan Snail -> Exhaust Duct) -->
-              <path d="M 395,150 C 420,130 430,105 635,80" fill="none" stroke="#3b82f6" stroke-width="26" stroke-opacity="0.08"/>
-              <path d="M 395,150 C 420,130 430,105 635,80" fill="none" stroke="#3b82f6" stroke-width="10" stroke-opacity="0.32"/>
-              <path class="flow-stream flow-exhaust" d="M 395,150 C 420,130 430,105 635,80" stroke-width="3" stroke-dasharray="14 8"/>
-              <path class="flow-stream-fast flow-exhaust" d="M 395,146 C 420,126 430,101 635,76" stroke-width="1.4" stroke-dasharray="4 6" stroke-opacity="0.7"/>
+              <!-- Exhaust Air Stream (Center Rotor -> Top Fan -> Exhaust Duct) -->
+              <path d="M 360,155 C 385,135 405,105 595,82" fill="none" stroke="#3b82f6" stroke-width="32" stroke-opacity="0.09"/>
+              <path d="M 360,155 C 385,135 405,105 595,82" fill="none" stroke="#3b82f6" stroke-width="12" stroke-opacity="0.35"/>
+              <path class="flow-stream flow-exhaust" d="M 360,155 C 385,135 405,105 595,82" stroke-width="3.2" stroke-dasharray="14 8"/>
+              <path class="flow-stream-fast flow-exhaust" d="M 360,151 C 385,131 405,101 595,78" stroke-width="1.5" stroke-dasharray="4 6" stroke-opacity="0.8"/>
 
               <!-- Supply Air Stream (Center Rotor -> Bottom Fan -> Heater -> Supply Duct) -->
-              <!-- Beautiful Red Thermal Gradient Flowing into the House -->
-              <path d="M 395,180 C 420,200 430,245 635,250" fill="none" stroke="url(#flowSupplyGrad)" stroke-width="26" stroke-opacity="0.10"/>
-              <path d="M 395,180 C 420,200 430,245 635,250" fill="none" stroke="url(#flowSupplyGrad)" stroke-width="10" stroke-opacity="0.36"/>
-              <path class="flow-stream flow-supply" d="M 395,180 C 420,200 430,245 635,250" stroke-width="3.2" stroke-dasharray="14 8"/>
-              <path class="flow-stream-fast" d="M 395,184 C 420,204 430,249 635,254" stroke="#ffffff" stroke-width="1.4" stroke-dasharray="4 6" stroke-opacity="0.75"/>
+              <path d="M 360,195 C 375,225 390,268 595,268" fill="none" stroke="url(#flowSupplyGrad)" stroke-width="32" stroke-opacity="0.12"/>
+              <path d="M 360,195 C 375,225 390,268 595,268" fill="none" stroke="url(#flowSupplyGrad)" stroke-width="12" stroke-opacity="0.40"/>
+              <path class="flow-stream flow-supply" d="M 360,195 C 375,225 390,268 595,268" stroke-width="3.4" stroke-dasharray="14 8"/>
+              <path class="flow-stream-fast" d="M 360,199 C 375,229 390,272 595,272" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="4 6" stroke-opacity="0.85"/>
 
-              <!-- 4. Top-Right Exhaust Snail Blower -->
-              <g transform="translate(425, 105)">
-                <!-- Realistic Archimedean Snail Housing Volute -->
-                <path d="M -36,0 C -36,-24 -18,-38 10,-38 L 85,-38 L 85,-14 L 38,-14 C 40,14 24,36 0,36 C -22,36 -36,18 -36,0 Z" fill="url(#snailGrad)" stroke="#38455c" stroke-width="2"/>
-                <circle cx="0" cy="0" r="28" fill="#131720" stroke="#252d3d" stroke-width="1.5"/>
+              <!-- 4. Top-Right Exhaust Snail Blower (Scaled Up) -->
+              <g transform="translate(415, 105)">
+                <path d="M -36,0 C -36,-24 -18,-40 12,-40 L 85,-40 L 85,-12 L 38,-12 C 42,16 26,40 0,40 C -24,40 -36,20 -36,0 Z" fill="url(#snailGrad)" stroke="#38455c" stroke-width="2"/>
+                <circle cx="0" cy="0" r="30" fill="#131720" stroke="#252d3d" stroke-width="1.5"/>
 
-                <!-- Backward-curved 8-Blade Centrifugal Impeller (Centered at 0,0) -->
+                <!-- Backward-curved 8-Blade Centrifugal Impeller -->
                 <g id="extractFanSpinner" class="fan-impeller">
-                  <circle cx="0" cy="0" r="5" fill="#475569"/>
-                  <path d="M 0,-4 C 8,-12 18,-8 22,2 C 16,3 8,0 0,-4 Z" fill="#cbd5e1"/>
-                  <path d="M 4,0 C 12,8 8,18 -2,22 C -3,16 0,8 4,0 Z" fill="#cbd5e1"/>
-                  <path d="M 0,4 C -8,12 -18,8 -22,-2 C -16,-3 -8,0 0,4 Z" fill="#cbd5e1"/>
-                  <path d="M -4,0 C -12,-8 -8,-18 2,-22 C 3,-16 0,-8 -4,0 Z" fill="#cbd5e1"/>
-                  <path d="M 3,-3 C 14,-4 18,6 14,16 C 10,12 5,5 3,-3 Z" fill="#94a3b8"/>
-                  <path d="M 3,3 C 4,14 -6,18 -16,14 C -12,10 -5,5 3,3 Z" fill="#94a3b8"/>
-                  <path d="M -3,3 C -14,4 -18,-6 -14,-16 C -10,-12 -5,-5 -3,3 Z" fill="#94a3b8"/>
-                  <path d="M -3,-3 C -4,-14 6,-18 16,-14 C 12,-10 5,-5 -3,-3 Z" fill="#94a3b8"/>
+                  <circle cx="0" cy="0" r="6" fill="#475569"/>
+                  <path d="M 0,-5 C 9,-14 20,-9 24,2 C 18,3 9,0 0,-5 Z" fill="#cbd5e1"/>
+                  <path d="M 5,0 C 14,9 9,20 -2,24 C -3,18 0,9 5,0 Z" fill="#cbd5e1"/>
+                  <path d="M 0,5 C -9,14 -20,9 -24,-2 C -18,-3 -9,0 0,5 Z" fill="#cbd5e1"/>
+                  <path d="M -5,0 C -14,-9 -9,-20 2,-24 C 3,-18 0,-9 -5,0 Z" fill="#cbd5e1"/>
+                  <path d="M 4,-4 C 16,-5 20,7 16,18 C 11,13 6,6 4,-4 Z" fill="#94a3b8"/>
+                  <path d="M 4,4 C 5,16 -7,20 -18,16 C -13,11 -6,6 4,4 Z" fill="#94a3b8"/>
+                  <path d="M -4,4 C -16,5 -20,-7 -16,-18 C -11,-13 -6,-6 -4,4 Z" fill="#94a3b8"/>
+                  <path d="M -4,-4 C -5,-16 7,-20 18,-16 C 13,-11 6,-6 -4,-4 Z" fill="#94a3b8"/>
                 </g>
-                <!-- Clean Angled Pointer Callout to EAF RPM (Clear of Rotor) -->
-                <polyline points="20,24 55,42 95,42" fill="none" stroke="#64748b" stroke-width="1.2" stroke-dasharray="2 2"/>
-                <text x="98" y="45" fill="#94a3b8" font-size="11" font-weight="500" id="extractRpmSvgText">EAF: 1410 RPM</text>
+                <!-- Clean Angled Pointer Callout to EAF RPM -->
+                <polyline points="20,28 50,45 80,45" fill="none" stroke="#64748b" stroke-width="1.2" stroke-dasharray="2 2"/>
+                <text x="84" y="48" fill="#94a3b8" font-size="11" font-weight="500" id="extractRpmSvgText">EAF: 1140 RPM</text>
               </g>
 
-              <!-- 5. Bottom-Right Supply Snail Blower -->
-              <g transform="translate(425, 245)">
-                <!-- Realistic Archimedean Snail Housing Volute -->
-                <path d="M -36,0 C -36,-24 -18,-38 10,-38 L 52,-38 L 52,-14 L 38,-14 C 40,14 24,36 0,36 C -22,36 -36,18 -36,0 Z" fill="url(#snailGrad)" stroke="#38455c" stroke-width="2"/>
-                <circle cx="0" cy="0" r="28" fill="#131720" stroke="#252d3d" stroke-width="1.5"/>
+              <!-- 5. Bottom-Right Supply Snail Blower (Scaled Up) -->
+              <g transform="translate(385, 255)">
+                <path d="M -36,0 C -36,-24 -18,-40 12,-40 L 52,-40 L 52,-12 L 38,-12 C 42,16 26,40 0,40 C -24,40 -36,20 -36,0 Z" fill="url(#snailGrad)" stroke="#38455c" stroke-width="2"/>
+                <circle cx="0" cy="0" r="30" fill="#131720" stroke="#252d3d" stroke-width="1.5"/>
 
-                <!-- Backward-curved 8-Blade Centrifugal Impeller (Centered at 0,0) -->
+                <!-- Backward-curved 8-Blade Centrifugal Impeller -->
                 <g id="supplyFanSpinner" class="fan-impeller">
-                  <circle cx="0" cy="0" r="5" fill="#475569"/>
-                  <path d="M 0,-4 C 8,-12 18,-8 22,2 C 16,3 8,0 0,-4 Z" fill="#cbd5e1"/>
-                  <path d="M 4,0 C 12,8 8,18 -2,22 C -3,16 0,8 4,0 Z" fill="#cbd5e1"/>
-                  <path d="M 0,4 C -8,12 -18,8 -22,-2 C -16,-3 -8,0 0,4 Z" fill="#cbd5e1"/>
-                  <path d="M -4,0 C -12,-8 -8,-18 2,-22 C 3,-16 0,-8 -4,0 Z" fill="#cbd5e1"/>
-                  <path d="M 3,-3 C 14,-4 18,6 14,16 C 10,12 5,5 3,-3 Z" fill="#94a3b8"/>
-                  <path d="M 3,3 C 4,14 -6,18 -16,14 C -12,10 -5,5 3,3 Z" fill="#94a3b8"/>
-                  <path d="M -3,3 C -14,4 -18,-6 -14,-16 C -10,-12 -5,-5 -3,3 Z" fill="#94a3b8"/>
-                  <path d="M -3,-3 C -4,-14 6,-18 16,-14 C 12,-10 5,-5 -3,-3 Z" fill="#94a3b8"/>
+                  <circle cx="0" cy="0" r="6" fill="#475569"/>
+                  <path d="M 0,-5 C 9,-14 20,-9 24,2 C 18,3 9,0 0,-5 Z" fill="#cbd5e1"/>
+                  <path d="M 5,0 C 14,9 9,20 -2,24 C -3,18 0,9 5,0 Z" fill="#cbd5e1"/>
+                  <path d="M 0,5 C -9,14 -20,9 -24,-2 C -18,-3 -9,0 0,5 Z" fill="#cbd5e1"/>
+                  <path d="M -5,0 C -14,-9 -9,-20 2,-24 C 3,-18 0,-9 -5,0 Z" fill="#cbd5e1"/>
+                  <path d="M 4,-4 C 16,-5 20,7 16,18 C 11,13 6,6 4,-4 Z" fill="#94a3b8"/>
+                  <path d="M 4,4 C 5,16 -7,20 -18,16 C -13,11 -6,6 4,4 Z" fill="#94a3b8"/>
+                  <path d="M -4,4 C -16,5 -20,-7 -16,-18 C -11,-13 -6,-6 -4,4 Z" fill="#94a3b8"/>
+                  <path d="M -4,-4 C -5,-16 7,-20 18,-16 C 13,-11 6,-6 -4,-4 Z" fill="#94a3b8"/>
                 </g>
-                <!-- Clean Pointer Callout to SAF RPM (Below Bottom Chamber) -->
-                <polyline points="0,36 0,55 -55,55" fill="none" stroke="#64748b" stroke-width="1.2" stroke-dasharray="2 2"/>
-                <text x="-60" y="58" text-anchor="end" fill="#94a3b8" font-size="11" font-weight="500" id="supplyRpmSvgText">SAF: 1450 RPM</text>
+                <!-- Clean Pointer Callout to SAF RPM -->
+                <polyline points="0,40 0,55 -50,55" fill="none" stroke="#64748b" stroke-width="1.2" stroke-dasharray="2 2"/>
+                <text x="-54" y="58" text-anchor="end" fill="#94a3b8" font-size="11" font-weight="500" id="supplyRpmSvgText">SAF: 1200 RPM</text>
               </g>
 
-              <!-- 6. Electric Reheater Serpentine Coil -->
+              <!-- 6. Electric Reheater Serpentine Coil (Scaled Up Height: 54px) -->
               <g id="heaterGroup">
                 <!-- Warm Glow Aura Background -->
-                <ellipse id="heaterAura" cx="525" cy="245" rx="42" ry="26" fill="url(#heaterRadialGlow)" opacity="0"/>
-                <!-- 5-loop Serpentine Coil Element (Polished Steel when idle, Neon Orange when active) -->
+                <ellipse id="heaterAura" cx="485" cy="258" rx="42" ry="30" fill="url(#heaterRadialGlow)" opacity="0"/>
+                <!-- 5-loop Serpentine Coil Element (Taller, Prominent) -->
                 <path id="heaterCoil" class="heater-coil"
-                  d="M 495,225 
-                     L 495,263 A 6,6 0 0,0 507,263 
-                     L 507,225 A 6,6 0 0,1 519,225 
-                     L 519,263 A 6,6 0 0,0 531,263 
-                     L 531,225 A 6,6 0 0,1 543,225 
-                     L 543,263 A 6,6 0 0,0 555,263 
-                     L 555,225" />
+                  d="M 452,236 
+                     L 452,280 A 6.5,6.5 0 0,0 465,280 
+                     L 465,236 A 6.5,6.5 0 0,1 478,236 
+                     L 478,280 A 6.5,6.5 0 0,0 491,280 
+                     L 491,236 A 6.5,6.5 0 0,1 504,236 
+                     L 504,280 A 6.5,6.5 0 0,0 517,280 
+                     L 517,236" />
               </g>
 
-              <!-- 7. Rotary Heat Exchanger (Center Wheel - Dynamic Gauge Arc) -->
+              <!-- 7. Rotary Heat Exchanger (Scaled Up: r=75, Diameter 150px) -->
               <g id="rotorGroup">
                 <!-- Outer Bezel -->
-                <circle cx="340" cy="165" r="64" fill="#111620" stroke="#252f40" stroke-width="3.5"/>
-                <!-- Multi-color Gradient Recovery Gauge Arc (Rotated -90deg so it fills clockwise from 12 o'clock) -->
-                <circle id="rotorGaugeArc" cx="340" cy="165" r="57" fill="none" stroke="url(#gaugeGrad)" stroke-width="4.5" stroke-dasharray="311 47" stroke-linecap="round" style="transition: stroke-dasharray 0.8s ease-out; transform: rotate(-90deg); transform-origin: 340px 165px;"/>
+                <circle cx="300" cy="175" r="75" fill="#111620" stroke="#252f40" stroke-width="3.5"/>
+                <!-- Multi-color Gradient Recovery Gauge Arc (Rotated -90deg) -->
+                <circle id="rotorGaugeArc" cx="300" cy="175" r="68" fill="none" stroke="url(#gaugeGrad)" stroke-width="5" stroke-dasharray="371 56" stroke-linecap="round" style="transition: stroke-dasharray 0.8s ease-out; transform: rotate(-90deg); transform-origin: 300px 175px;"/>
 
                 <!-- Rotating Radial Vanes Matrix -->
                 <g id="rotorWheel" class="rotor-spin-group">
-                  <line x1="340" y1="108" x2="340" y2="222" stroke="#334155" stroke-width="1.2"/>
-                  <line x1="283" y1="165" x2="397" y2="165" stroke="#334155" stroke-width="1.2"/>
-                  <line x1="300" y1="125" x2="380" y2="205" stroke="#334155" stroke-width="1.2"/>
-                  <line x1="300" y1="205" x2="380" y2="125" stroke="#334155" stroke-width="1.2"/>
-                  <line x1="318" y1="111" x2="362" y2="219" stroke="#334155" stroke-width="1"/>
-                  <line x1="362" y1="111" x2="318" y2="219" stroke="#334155" stroke-width="1"/>
-                  <line x1="286" y1="143" x2="394" y2="187" stroke="#334155" stroke-width="1"/>
-                  <line x1="286" y1="187" x2="394" y2="143" stroke="#334155" stroke-width="1"/>
+                  <line x1="300" y1="108" x2="300" y2="242" stroke="#334155" stroke-width="1.2"/>
+                  <line x1="233" y1="175" x2="367" y2="175" stroke="#334155" stroke-width="1.2"/>
+                  <line x1="253" y1="128" x2="347" y2="222" stroke="#334155" stroke-width="1.2"/>
+                  <line x1="253" y1="222" x2="347" y2="128" stroke="#334155" stroke-width="1.2"/>
+                  <line x1="274" y1="112" x2="326" y2="238" stroke="#334155" stroke-width="1"/>
+                  <line x1="326" y1="112" x2="274" y2="238" stroke="#334155" stroke-width="1"/>
+                  <line x1="237" y1="149" x2="363" y2="201" stroke="#334155" stroke-width="1"/>
+                  <line x1="237" y1="201" x2="363" y2="149" stroke="#334155" stroke-width="1"/>
                   <!-- Concentric Aluminum Matrix Ribs -->
-                  <circle cx="340" cy="165" r="47" fill="none" stroke="#1e293b" stroke-width="12" stroke-dasharray="2 3"/>
+                  <circle cx="300" cy="175" r="56" fill="none" stroke="#1e293b" stroke-width="14" stroke-dasharray="2 3"/>
                 </g>
 
                 <!-- Central Digital Efficiency Dial -->
-                <circle cx="340" cy="165" r="37" fill="#141924" stroke="rgba(255, 255, 255, 0.12)" stroke-width="1.5"/>
-                <text x="340" y="166" text-anchor="middle" fill="#ffffff" font-size="20" font-weight="800" id="rotorPctText">84%</text>
-                <text x="340" y="180" text-anchor="middle" fill="#94a3b8" font-size="8.5" font-weight="600" letter-spacing="1">RECOVERY</text>
+                <circle cx="300" cy="175" r="44" fill="#141924" stroke="rgba(255, 255, 255, 0.12)" stroke-width="1.5"/>
+                <text x="300" y="177" text-anchor="middle" fill="#ffffff" font-size="24" font-weight="800" id="rotorPctText">87%</text>
+                <text x="300" y="194" text-anchor="middle" fill="#94a3b8" font-size="9" font-weight="600" letter-spacing="1.2">RECOVERY</text>
               </g>
 
-              <!-- 8. Clean Integrated Sensor Typography & Callouts -->
+              <!-- 8. Clean Integrated Sensor Typography Inside Collars -->
               <!-- Top-Left: Outdoor Air -->
               <g>
-                <text x="36" y="44" fill="#94a3b8" font-size="12" font-weight="600">Outdoor Air</text>
-                <text x="36" y="68" class="temp-outdoor" font-size="22" font-weight="800" id="outdoorTempSvg">-2.5°C</text>
-                <text x="36" y="90" fill="#64748b" font-size="11" font-weight="500">Fresh</text>
+                <text x="12" y="44" fill="#94a3b8" font-size="12" font-weight="600">Outdoor Air</text>
+                <text x="12" y="70" class="temp-outdoor" font-size="23" font-weight="800" id="outdoorTempSvg">-2.5°C</text>
+                <text x="12" y="94" fill="#64748b" font-size="11" font-weight="500">Fresh</text>
               </g>
 
               <!-- Top-Right: Exhaust Air -->
               <g>
-                <text x="644" y="44" text-anchor="end" fill="#94a3b8" font-size="12" font-weight="600">Exhaust Air</text>
-                <text x="644" y="68" text-anchor="end" class="temp-exhaust" font-size="22" font-weight="800" id="exhaustTempSvg">3.8°C</text>
-                <text x="644" y="90" text-anchor="end" fill="#64748b" font-size="11" font-weight="500">Discharge</text>
+                <text x="588" y="44" text-anchor="end" fill="#94a3b8" font-size="12" font-weight="600">Exhaust Air</text>
+                <text x="588" y="70" text-anchor="end" class="temp-exhaust" font-size="23" font-weight="800" id="exhaustTempSvg">3.8°C</text>
+                <text x="588" y="94" text-anchor="end" fill="#64748b" font-size="11" font-weight="500">Discharge</text>
               </g>
 
-              <!-- Bottom-Left: Extract Air (Safely within duct collar) -->
+              <!-- Bottom-Left: Extract Air -->
               <g>
-                <text x="36" y="214" fill="#94a3b8" font-size="12" font-weight="600">Extract Air</text>
-                <text x="36" y="234" class="temp-extract" font-size="22" font-weight="800" id="extractTempSvg">22.0°C</text>
-                <text x="36" y="252" fill="#94a3b8" font-size="11" font-weight="500" id="extractRhSvg">48% RH</text>
-                <text x="36" y="268" fill="#94a3b8" font-size="11" font-weight="500" id="extractCo2Svg">580 ppm CO₂</text>
+                <text x="12" y="214" fill="#94a3b8" font-size="12" font-weight="600">Extract Air</text>
+                <text x="12" y="238" class="temp-extract" font-size="23" font-weight="800" id="extractTempSvg">22.0°C</text>
+                <text x="12" y="258" fill="#94a3b8" font-size="11" font-weight="500" id="extractRhSvg">48% RH</text>
+                <text x="12" y="276" fill="#94a3b8" font-size="11" font-weight="500" id="extractCo2Svg">580 ppm CO₂</text>
               </g>
 
-              <!-- Bottom-Right: Supply Air (Safely within duct collar) -->
+              <!-- Bottom-Right: Supply Air -->
               <g>
-                <text x="644" y="214" text-anchor="end" fill="#94a3b8" font-size="12" font-weight="600">Supply Air</text>
-                <text x="644" y="238" text-anchor="end" class="temp-supply" font-size="22" font-weight="800" id="supplyTempSvg">20.5°C</text>
-                <text x="644" y="258" text-anchor="end" fill="#94a3b8" font-size="11" font-weight="500" id="supplyFlowSvg">160 m³/h</text>
+                <text x="588" y="214" text-anchor="end" fill="#94a3b8" font-size="12" font-weight="600">Supply Air</text>
+                <text x="588" y="240" text-anchor="end" class="temp-supply" font-size="23" font-weight="800" id="supplyTempSvg">20.5°C</text>
+                <text x="588" y="262" text-anchor="end" fill="#94a3b8" font-size="11" font-weight="500" id="supplyFlowSvg">160 m³/h</text>
               </g>
             </svg>
           </div>
@@ -752,7 +752,7 @@ class SystemairRecuperatorCard extends HTMLElement {
                 </div>
               </div>
 
-              <!-- iOS-Style Toggles with Non-Wrapping Labels -->
+              <!-- iOS-Style Toggles -->
               <div class="toggles-group">
                 <div class="toggle-item" id="heaterToggleItem">
                   <div class="ios-switch orange" id="heaterSwitch"><div class="thumb"></div></div>
@@ -808,7 +808,7 @@ class SystemairRecuperatorCard extends HTMLElement {
       });
     });
 
-    // iOS Toggles
+    // iOS Toggles (100% Clickable with Guaranteed Optimistic Response)
     root.getElementById('heaterToggleItem').addEventListener('click', () => this._toggleSwitch('heater'));
     root.getElementById('ecoToggleItem').addEventListener('click', () => this._toggleSwitch('eco'));
     root.getElementById('freeCoolingToggleItem').addEventListener('click', () => this._toggleSwitch('free_cooling'));
@@ -917,10 +917,10 @@ class SystemairRecuperatorCard extends HTMLElement {
     const effElem = root.getElementById('rotorPctText');
     if (effElem) effElem.textContent = `${finalEff}%`;
 
-    // Dynamic SVG Gauge Arc Length
+    // Dynamic SVG Gauge Arc Length (Circumference for r=68 is 2 * PI * 68 = 427.25)
     const gaugeArc = root.getElementById('rotorGaugeArc');
     if (gaugeArc) {
-      const totalCircumference = 358.14; // 2 * Math.PI * 57
+      const totalCircumference = 427.25;
       const filled = (Math.max(5, Math.min(100, finalEff)) / 100) * totalCircumference;
       const blank = totalCircumference - filled;
       gaugeArc.setAttribute('stroke-dasharray', `${filled.toFixed(1)} ${blank.toFixed(1)}`);
@@ -965,7 +965,7 @@ class SystemairRecuperatorCard extends HTMLElement {
       /humidity/i,
       /extract.*rh/i
     ]);
-    const rhVal = this._getNum(rhId, 55);
+    const rhVal = this._getNum(rhId, 48);
     const rhElem = root.getElementById('extractRhSvg');
     if (rhElem) rhElem.textContent = `${Math.round(rhVal)}% RH`;
 
@@ -973,7 +973,7 @@ class SystemairRecuperatorCard extends HTMLElement {
       'sensor.systemair_co2_level',
       /co2/i
     ]);
-    const co2Val = this._getNum(co2Id, 465);
+    const co2Val = this._getNum(co2Id, 527);
     const co2Elem = root.getElementById('extractCo2Svg');
     if (co2Elem) co2Elem.textContent = `${Math.round(co2Val)} ppm CO₂`;
 
@@ -982,15 +982,17 @@ class SystemairRecuperatorCard extends HTMLElement {
       /air.*flow/i,
       /volume/i
     ]);
-    const flowVal = this._getNum(flowId, 81);
+    const flowVal = this._getNum(flowId, 84);
     const flowElem = root.getElementById('supplyFlowSvg');
     if (flowElem) flowElem.textContent = `${Math.round(flowVal)} m³/h`;
 
     // 7. Heater Active State & Coil Glow
     const heaterId = this._config.heater_entity || this._findEntity([
       'switch.systemair_heater',
+      'switch.systemair_reheater',
       'switch.heater',
-      /heater.*switch/i
+      /^switch\..*heater/i,
+      /heater/i
     ]);
     let heaterActive = false;
     if (this._optimistic.heater !== undefined) {
@@ -1077,7 +1079,7 @@ class SystemairRecuperatorCard extends HTMLElement {
         temperature: nextTemp,
       }).then(() => {
         setTimeout(() => { delete this._optimistic.targetTemp; }, 3000);
-      });
+      }).catch(err => console.warn('Temperature set failed', err));
     }, 400);
   }
 
@@ -1094,7 +1096,7 @@ class SystemairRecuperatorCard extends HTMLElement {
       fan_mode: speed,
     }).then(() => {
       setTimeout(() => { delete this._optimistic.fanSpeed; }, 3500);
-    });
+    }).catch(err => console.warn('Fan speed set failed', err));
   }
 
   _setPresetMode(mode) {
@@ -1110,32 +1112,52 @@ class SystemairRecuperatorCard extends HTMLElement {
       preset_mode: mode,
     }).then(() => {
       setTimeout(() => { delete this._optimistic.preset_mode; }, 3500);
-    });
+    }).catch(err => console.warn('Preset set failed', err));
   }
 
   _toggleSwitch(type) {
     if (!this._hass) return;
     let entityId = null;
     if (type === 'heater') {
-      entityId = this._config.heater_entity || this._findEntity(['switch.systemair_heater', 'switch.heater', /heater.*switch/i]);
+      entityId = this._config.heater_entity || this._findEntity([
+        'switch.systemair_heater',
+        'switch.systemair_reheater',
+        'switch.heater',
+        /^switch\..*heater/i,
+        /heater/i
+      ]);
     } else if (type === 'eco') {
       entityId = this._config.eco_entity || this._findEntity(['switch.systemair_eco_mode', 'switch.eco_mode', /eco/i]);
     } else if (type === 'free_cooling') {
       entityId = this._config.free_cooling_entity || this._findEntity(['switch.systemair_free_cooling', 'switch.free_cooling', /free.*cool/i]);
     }
 
-    if (!entityId || !this._hass.states[entityId]) return;
-
-    const cur = this._hass.states[entityId].state === 'on';
-    const next = !cur;
-    this._optimistic[type] = next;
+    // ALWAYS toggle optimistic state immediately so user sees instant feedback
+    const curState = this._optimistic[type] !== undefined
+      ? this._optimistic[type]
+      : (entityId && this._hass.states[entityId] ? this._hass.states[entityId].state === 'on' : false);
+    const nextState = !curState;
+    this._optimistic[type] = nextState;
     this._updateValues();
 
-    this._hass.callService('switch', next ? 'turn_on' : 'turn_off', {
-      entity_id: entityId,
-    }).then(() => {
-      setTimeout(() => { delete this._optimistic[type]; }, 3500);
-    });
+    if (entityId && this._hass.states[entityId]) {
+      this._hass.callService('switch', nextState ? 'turn_on' : 'turn_off', {
+        entity_id: entityId,
+      }).then(() => {
+        setTimeout(() => { delete this._optimistic[type]; }, 4000);
+      }).catch(err => console.warn('Switch service failed', err));
+    } else if (type === 'heater') {
+      // Fallback: check climate HVAC mode if no switch entity found
+      const climateId = this._config.climate_entity || this._findEntity([/^climate\.systemair/]);
+      if (climateId) {
+        this._hass.callService('climate', 'set_hvac_mode', {
+          entity_id: climateId,
+          hvac_mode: nextState ? 'heat' : 'fan_only',
+        }).then(() => {
+          setTimeout(() => { delete this._optimistic[type]; }, 4000);
+        }).catch(err => console.warn('Climate service fallback failed', err));
+      }
+    }
   }
 }
 
