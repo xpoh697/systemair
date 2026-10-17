@@ -5,7 +5,7 @@ from logging import Logger, getLogger
 LOGGER: Logger = getLogger(__package__)
 
 DOMAIN = "systemair"
-VERSION = "1.0.35"
+VERSION = "1.0.36"
 CARD_FILENAME = "systemair-recuperator-card.js"
 ATTRIBUTION = "Data provided by Systemair SAVE Connect."
 
