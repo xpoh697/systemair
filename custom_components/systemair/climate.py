@@ -66,12 +66,27 @@ VALUE_TO_PRESET_MODE_MAP = {value - 1: key for key, value in PRESET_MODE_TO_VALU
 
 FAN_MODE_TO_VALUE_MAP = {
     FAN_OFF: 0,
+    "off": 0,
+    "0": 0,
     FAN_LOW: 2,
+    "low": 2,
+    "1": 2,
     FAN_MEDIUM: 3,
+    "medium": 3,
+    "med": 3,
+    "2": 3,
     FAN_HIGH: 4,
+    "high": 4,
+    "hi": 4,
+    "3": 4,
 }
 
-VALUE_TO_FAN_MODE_MAP = {value: key for key, value in FAN_MODE_TO_VALUE_MAP.items()}
+VALUE_TO_FAN_MODE_MAP = {
+    0: FAN_OFF,
+    2: FAN_LOW,
+    3: FAN_MEDIUM,
+    4: FAN_HIGH,
+}
 
 
 async def async_setup_entry(
@@ -267,7 +282,14 @@ class SystemairClimateEntity(SystemairEntity, ClimateEntity):
 
     async def async_set_fan_mode(self, fan_mode: str) -> None:
         """Set new target fan mode."""
-        mode = FAN_MODE_TO_VALUE_MAP[fan_mode]
+        mode = FAN_MODE_TO_VALUE_MAP.get(fan_mode)
+        if mode is None:
+            return
+
+        # In Systemair SAVE units, manual airflow levels only apply when unit is in manual preset
+        if self.preset_mode != PRESET_MODE_MANUAL and mode != 0:
+            await self.async_set_preset_mode(PRESET_MODE_MANUAL)
+
         try:
             await self.coordinator.set_modbus_data(parameter_map["REG_USERMODE_MANUAL_AIRFLOW_LEVEL_SAF"], mode)
             await asyncio.sleep(1)
