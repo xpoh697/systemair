@@ -2,9 +2,10 @@
  * Systemair Recuperator Lovelace Card
  * Custom Home Assistant card for Systemair SAVE ventilation units with heat recovery.
  * Fully matching visual mockup aesthetics: zero-waste minimal margin layout, dynamic thermal
- * gradient for all 4 airflows (blue to red), volumetric fluid particle streams, snail blowers,
- * active reheater, bold high-visibility typography, native climate switching, and interactive more-info support.
- * Version: 1.0.37
+ * gradient for all 4 airflows (blue to red), multi-ribbon volumetric fluid particle streams,
+ * realistic snail blowers, active reheater, bold typography, direct climate more-info on rotor,
+ * and interactive controls.
+ * Version: 1.0.38
  */
 
 class SystemairRecuperatorCard extends HTMLElement {
@@ -376,7 +377,7 @@ class SystemairRecuperatorCard extends HTMLElement {
         }
         .clickable:hover {
           opacity: 0.82;
-          filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.4));
+          filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.45));
         }
 
         /* SVG Schematic Container */
@@ -396,31 +397,45 @@ class SystemairRecuperatorCard extends HTMLElement {
           animation-play-state: paused !important;
         }
 
-        /* Volumetric Flow Streams & Flying Particle Beads */
-        .flow-underglow {
+        /* Multi-Ribbon Volumetric Fluid Flow Streams */
+        .flow-glow {
           fill: none;
           stroke-linecap: round;
           stroke-linejoin: round;
         }
-        .flow-core {
+        .flow-line {
           fill: none;
           stroke-linecap: round;
           stroke-linejoin: round;
         }
-        .flow-particles {
+        .flow-particles-1 {
           fill: none;
           stroke-linecap: round;
           stroke-linejoin: round;
-          animation: flowMotion 2.2s linear infinite;
+          animation: flowMotion1 2.2s linear infinite;
         }
-        .flow-particles-fast {
+        .flow-particles-2 {
           fill: none;
           stroke-linecap: round;
           stroke-linejoin: round;
-          animation: flowMotion 1.4s linear infinite;
+          animation: flowMotion2 1.6s linear infinite;
         }
-        @keyframes flowMotion {
-          from { stroke-dashoffset: 54; }
+        .flow-particles-3 {
+          fill: none;
+          stroke-linecap: round;
+          stroke-linejoin: round;
+          animation: flowMotion3 2.8s linear infinite;
+        }
+        @keyframes flowMotion1 {
+          from { stroke-dashoffset: 55; }
+          to { stroke-dashoffset: 0; }
+        }
+        @keyframes flowMotion2 {
+          from { stroke-dashoffset: 44; }
+          to { stroke-dashoffset: 0; }
+        }
+        @keyframes flowMotion3 {
+          from { stroke-dashoffset: 56; }
           to { stroke-dashoffset: 0; }
         }
 
@@ -706,38 +721,82 @@ class SystemairRecuperatorCard extends HTMLElement {
               <line x1="270" y1="255" x2="270" y2="320" stroke="#273142" stroke-width="2.5"/>
 
               <!-- Duct Collars with Dynamic Thermal Lines -->
-              <g><rect x="0" y="56" width="70" height="60" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/><line x1="60" y1="56" x2="60" y2="116" stroke="#475569" stroke-width="3"/><line id="outdoorDuctLine" x1="10" y1="59" x2="10" y2="113" stroke="#38bdf8" stroke-width="1.8"/></g>
-              <g><rect x="470" y="56" width="70" height="60" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/><line x1="480" y1="56" x2="480" y2="116" stroke="#475569" stroke-width="3"/><line id="exhaustDuctLine" x1="530" y1="59" x2="530" y2="113" stroke="#60a5fa" stroke-width="1.8"/></g>
-              <g><rect x="0" y="234" width="70" height="60" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/><line x1="60" y1="234" x2="60" y2="294" stroke="#475569" stroke-width="3"/><line id="extractDuctLine" x1="10" y1="237" x2="10" y2="291" stroke="#fbbf24" stroke-width="1.8"/></g>
-              <g><rect x="470" y="234" width="70" height="60" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/><line x1="480" y1="234" x2="480" y2="294" stroke="#475569" stroke-width="3"/><line id="supplyDuctLine" x1="530" y1="237" x2="530" y2="291" stroke="#ff3b30" stroke-width="1.8"/></g>
+              <g><rect x="0" y="56" width="70" height="60" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/><line x1="60" y1="56" x2="60" y2="116" stroke="#475569" stroke-width="3"/><line id="outdoorDuctLine" class="outdoor-flow" x1="10" y1="59" x2="10" y2="113" stroke="#38bdf8" stroke-width="2"/></g>
+              <g><rect x="470" y="56" width="70" height="60" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/><line x1="480" y1="56" x2="480" y2="116" stroke="#475569" stroke-width="3"/><line id="exhaustDuctLine" class="exhaust-flow" x1="530" y1="59" x2="530" y2="113" stroke="#60a5fa" stroke-width="2"/></g>
+              <g><rect x="0" y="234" width="70" height="60" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/><line x1="60" y1="234" x2="60" y2="294" stroke="#475569" stroke-width="3"/><line id="extractDuctLine" class="extract-flow" x1="10" y1="237" x2="10" y2="291" stroke="#fbbf24" stroke-width="2"/></g>
+              <g><rect x="470" y="234" width="70" height="60" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/><line x1="480" y1="234" x2="480" y2="294" stroke="#475569" stroke-width="3"/><line id="supplyDuctLine" class="supply-flow" x1="530" y1="237" x2="530" y2="291" stroke="#ff3b30" stroke-width="2"/></g>
 
-              <!-- Dynamic Multi-layer Flow Streamlines (3-Layer Volumetric Fluid with Particles) -->
+              <!-- Multi-Ribbon Volumetric Fluid Flow Streams (3-Layer Multi-Ribbon Streamlines) -->
               <g id="supplyStreamGroup">
-                <!-- Outdoor Air: Underglow + Core + Luminous Beads + Fast Micro-sparks -->
-                <path id="outdoorUnderglow" d="M 0,86 C 160,86 210,135 270,175" class="flow-underglow" stroke="#38bdf8" stroke-width="24" stroke-opacity="0.16"/>
-                <path id="outdoorCore" d="M 0,86 C 160,86 210,135 270,175" class="flow-core" stroke="#38bdf8" stroke-width="4.5" stroke-opacity="0.45"/>
-                <path id="outdoorParticles" d="M 0,86 C 160,86 210,135 270,175" class="flow-particles" stroke="#38bdf8" stroke-width="3.5" stroke-dasharray="3 24"/>
-                <path d="M 0,86 C 160,86 210,135 270,175" class="flow-particles-fast" stroke="rgba(255, 255, 255, 0.6)" stroke-width="2" stroke-dasharray="2 18"/>
+                <!-- 1. Outdoor Fresh Air (Top-Left Intake) -->
+                <!-- Ambient Volumetric Flow Body (Fills duct channel) -->
+                <path d="M 0,86 C 160,86 210,135 270,175" class="flow-glow outdoor-flow" stroke="#38bdf8" stroke-width="36" stroke-opacity="0.18"/>
 
-                <!-- Supply Air: Underglow + Core + Luminous Beads + Fast Micro-sparks -->
-                <path id="supplyUnderglow" d="M 270,175 C 330,215 380,264 540,264" class="flow-underglow" stroke="#ff3b30" stroke-width="24" stroke-opacity="0.16"/>
-                <path id="supplyCore" d="M 270,175 C 330,215 380,264 540,264" class="flow-core" stroke="#ff3b30" stroke-width="4.5" stroke-opacity="0.45"/>
-                <path id="supplyParticles" d="M 270,175 C 330,215 380,264 540,264" class="flow-particles" stroke="#ff3b30" stroke-width="3.5" stroke-dasharray="3 24"/>
-                <path d="M 270,175 C 330,215 380,264 540,264" class="flow-particles-fast" stroke="rgba(255, 255, 255, 0.6)" stroke-width="2" stroke-dasharray="2 18"/>
+                <!-- Upper Streamline Ribbon & High-Speed Particles -->
+                <path d="M 0,74 C 160,74 210,123 260,163" class="flow-line outdoor-flow" stroke="#38bdf8" stroke-width="1.8" stroke-opacity="0.4"/>
+                <path d="M 0,74 C 160,74 210,123 260,163" class="flow-particles-2 outdoor-flow" stroke="#38bdf8" stroke-width="2.5" stroke-dasharray="2 20"/>
+
+                <!-- Core Streamline Ribbon & Dense Luminous Particle Beads -->
+                <path d="M 0,86 C 160,86 210,135 270,175" class="flow-line outdoor-flow" stroke="#38bdf8" stroke-width="3.5" stroke-opacity="0.6"/>
+                <path d="M 0,86 C 160,86 210,135 270,175" class="flow-particles-1 outdoor-flow" stroke="#38bdf8" stroke-width="4" stroke-dasharray="3.5 24"/>
+                <path d="M 0,86 C 160,86 210,135 270,175" class="flow-particles-2" stroke="rgba(255, 255, 255, 0.65)" stroke-width="1.8" stroke-dasharray="2 16"/>
+
+                <!-- Lower Streamline Ribbon & Staggered Particles -->
+                <path d="M 0,98 C 160,98 210,147 280,187" class="flow-line outdoor-flow" stroke="#38bdf8" stroke-width="1.8" stroke-opacity="0.4"/>
+                <path d="M 0,98 C 160,98 210,147 280,187" class="flow-particles-3 outdoor-flow" stroke="#38bdf8" stroke-width="2.5" stroke-dasharray="2 28"/>
+
+                <!-- 2. Supply Air to Rooms (Bottom-Right Discharge) -->
+                <!-- Ambient Volumetric Flow Body -->
+                <path d="M 270,175 C 330,215 380,264 540,264" class="flow-glow supply-flow" stroke="#ff3b30" stroke-width="36" stroke-opacity="0.18"/>
+
+                <!-- Upper Streamline Ribbon & Particles -->
+                <path d="M 260,163 C 330,203 380,252 540,252" class="flow-line supply-flow" stroke="#ff3b30" stroke-width="1.8" stroke-opacity="0.4"/>
+                <path d="M 260,163 C 330,203 380,252 540,252" class="flow-particles-2 supply-flow" stroke="#ff3b30" stroke-width="2.5" stroke-dasharray="2 20"/>
+
+                <!-- Core Streamline Ribbon & Particles -->
+                <path d="M 270,175 C 330,215 380,264 540,264" class="flow-line supply-flow" stroke="#ff3b30" stroke-width="3.5" stroke-opacity="0.6"/>
+                <path d="M 270,175 C 330,215 380,264 540,264" class="flow-particles-1 supply-flow" stroke="#ff3b30" stroke-width="4" stroke-dasharray="3.5 24"/>
+                <path d="M 270,175 C 330,215 380,264 540,264" class="flow-particles-2" stroke="rgba(255, 255, 255, 0.65)" stroke-width="1.8" stroke-dasharray="2 16"/>
+
+                <!-- Lower Streamline Ribbon & Particles -->
+                <path d="M 280,187 C 330,227 380,276 540,276" class="flow-line supply-flow" stroke="#ff3b30" stroke-width="1.8" stroke-opacity="0.4"/>
+                <path d="M 280,187 C 330,227 380,276 540,276" class="flow-particles-3 supply-flow" stroke="#ff3b30" stroke-width="2.5" stroke-dasharray="2 28"/>
               </g>
 
               <g id="exhaustStreamGroup">
-                <!-- Extract Air: Underglow + Core + Luminous Beads + Fast Micro-sparks -->
-                <path id="extractUnderglow" d="M 0,264 C 160,264 210,215 270,175" class="flow-underglow" stroke="#fbbf24" stroke-width="24" stroke-opacity="0.16"/>
-                <path id="extractCore" d="M 0,264 C 160,264 210,215 270,175" class="flow-core" stroke="#fbbf24" stroke-width="4.5" stroke-opacity="0.45"/>
-                <path id="extractParticles" d="M 0,264 C 160,264 210,215 270,175" class="flow-particles" stroke="#fbbf24" stroke-width="3.5" stroke-dasharray="3 24"/>
-                <path d="M 0,264 C 160,264 210,215 270,175" class="flow-particles-fast" stroke="rgba(255, 255, 255, 0.6)" stroke-width="2" stroke-dasharray="2 18"/>
+                <!-- 3. Extract Air from Rooms (Bottom-Left Intake) -->
+                <!-- Ambient Volumetric Flow Body -->
+                <path d="M 0,264 C 160,264 210,215 270,175" class="flow-glow extract-flow" stroke="#fbbf24" stroke-width="36" stroke-opacity="0.18"/>
 
-                <!-- Exhaust Air: Underglow + Core + Luminous Beads + Fast Micro-sparks -->
-                <path id="exhaustUnderglow" d="M 270,175 C 330,135 380,86 540,86" class="flow-underglow" stroke="#60a5fa" stroke-width="24" stroke-opacity="0.16"/>
-                <path id="exhaustCore" d="M 270,175 C 330,135 380,86 540,86" class="flow-core" stroke="#60a5fa" stroke-width="4.5" stroke-opacity="0.45"/>
-                <path id="exhaustParticles" d="M 270,175 C 330,135 380,86 540,86" class="flow-particles" stroke="#60a5fa" stroke-width="3.5" stroke-dasharray="3 24"/>
-                <path d="M 270,175 C 330,135 380,86 540,86" class="flow-particles-fast" stroke="rgba(255, 255, 255, 0.6)" stroke-width="2" stroke-dasharray="2 18"/>
+                <!-- Upper Streamline Ribbon & Particles -->
+                <path d="M 0,252 C 160,252 210,203 260,163" class="flow-line extract-flow" stroke="#fbbf24" stroke-width="1.8" stroke-opacity="0.4"/>
+                <path d="M 0,252 C 160,252 210,203 260,163" class="flow-particles-2 extract-flow" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="2 20"/>
+
+                <!-- Core Streamline Ribbon & Particles -->
+                <path d="M 0,264 C 160,264 210,215 270,175" class="flow-line extract-flow" stroke="#fbbf24" stroke-width="3.5" stroke-opacity="0.6"/>
+                <path d="M 0,264 C 160,264 210,215 270,175" class="flow-particles-1 extract-flow" stroke="#fbbf24" stroke-width="4" stroke-dasharray="3.5 24"/>
+                <path d="M 0,264 C 160,264 210,215 270,175" class="flow-particles-2" stroke="rgba(255, 255, 255, 0.65)" stroke-width="1.8" stroke-dasharray="2 16"/>
+
+                <!-- Lower Streamline Ribbon & Particles -->
+                <path d="M 0,276 C 160,276 210,227 280,187" class="flow-line extract-flow" stroke="#fbbf24" stroke-width="1.8" stroke-opacity="0.4"/>
+                <path d="M 0,276 C 160,276 210,227 280,187" class="flow-particles-3 extract-flow" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="2 28"/>
+
+                <!-- 4. Exhaust Air to Outside (Top-Right Discharge) -->
+                <!-- Ambient Volumetric Flow Body -->
+                <path d="M 270,175 C 330,135 380,86 540,86" class="flow-glow exhaust-flow" stroke="#60a5fa" stroke-width="36" stroke-opacity="0.18"/>
+
+                <!-- Upper Streamline Ribbon & Particles -->
+                <path d="M 260,163 C 330,123 380,74 540,74" class="flow-line exhaust-flow" stroke="#60a5fa" stroke-width="1.8" stroke-opacity="0.4"/>
+                <path d="M 260,163 C 330,123 380,74 540,74" class="flow-particles-2 exhaust-flow" stroke="#60a5fa" stroke-width="2.5" stroke-dasharray="2 20"/>
+
+                <!-- Core Streamline Ribbon & Particles -->
+                <path d="M 270,175 C 330,135 380,86 540,86" class="flow-line exhaust-flow" stroke="#60a5fa" stroke-width="3.5" stroke-opacity="0.6"/>
+                <path d="M 270,175 C 330,135 380,86 540,86" class="flow-particles-1 exhaust-flow" stroke="#60a5fa" stroke-width="4" stroke-dasharray="3.5 24"/>
+                <path d="M 270,175 C 330,135 380,86 540,86" class="flow-particles-2" stroke="rgba(255, 255, 255, 0.65)" stroke-width="1.8" stroke-dasharray="2 16"/>
+
+                <!-- Lower Streamline Ribbon & Particles -->
+                <path d="M 280,187 C 330,147 380,98 540,98" class="flow-line exhaust-flow" stroke="#60a5fa" stroke-width="1.8" stroke-opacity="0.4"/>
+                <path d="M 280,187 C 330,147 380,98 540,98" class="flow-particles-3 exhaust-flow" stroke="#60a5fa" stroke-width="2.5" stroke-dasharray="2 28"/>
               </g>
 
               <!-- Exhaust Fan (EAF Snail Volute & Rotor) -->
@@ -775,8 +834,8 @@ class SystemairRecuperatorCard extends HTMLElement {
                   d="M 416,239 L 416,271 A 5,5 0 0,0 426,271 L 426,239 A 5,5 0 0,1 436,239 L 436,271 A 5,5 0 0,0 446,271 L 446,239" />
               </g>
 
-              <!-- Rotary Heat Exchanger -->
-              <g id="rotorGroup" class="clickable">
+              <!-- Rotary Heat Exchanger (Central Circle - Clickable to open Climate more-info) -->
+              <g id="rotorGroup" class="clickable" title="Open Climate Control">
                 <circle cx="270" cy="175" r="80" fill="#111620" stroke="#252f40" stroke-width="3.5"/>
                 <circle id="rotorGaugeArc" cx="270" cy="175" r="72" fill="none" stroke="url(#gaugeGrad)" stroke-width="5" stroke-dasharray="390 62" stroke-linecap="round" style="transition: stroke-dasharray 0.8s ease-out; transform: rotate(-90deg); transform-origin: 270px 175px;"/>
                 <g id="rotorWheel" class="rotor-spin-group">
@@ -791,7 +850,7 @@ class SystemairRecuperatorCard extends HTMLElement {
                 <text x="270" y="196" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="700" letter-spacing="1.2">RECOVERY</text>
               </g>
 
-              <!-- Central Filter Remaining Life Badge (Accurate Days) -->
+              <!-- Central Filter Remaining Life Badge -->
               <g id="filterRemainingGroup" class="clickable">
                 <rect x="155" y="324" width="230" height="21" rx="5" fill="#0f141c" stroke="#253043" stroke-width="1"/>
                 <text x="270" y="339" text-anchor="middle" fill="#94a3b8" font-size="11.5" font-weight="600">
@@ -799,8 +858,8 @@ class SystemairRecuperatorCard extends HTMLElement {
                 </text>
               </g>
 
-              <!-- SENSOR TYPOGRAPHY (Rendered on Top of Everything) -->
-              <!-- Top-Right EAF RPM Callout (Centered strictly below EAF blower, 100% visible, outside rotor) -->
+              <!-- SENSOR TYPOGRAPHY (Top Layer) -->
+              <!-- Top-Right EAF RPM Callout -->
               <g id="extractFanRpmGroup" class="clickable">
                 <polyline points="425,130 425,145" fill="none" stroke="#64748b" stroke-width="1.2" stroke-dasharray="2 2"/>
                 <text x="425" y="158" text-anchor="middle" fill="#cbd5e1" font-size="12.5" font-weight="700" id="extractRpmSvgText">EAF: 1140 RPM</text>
@@ -851,7 +910,7 @@ class SystemairRecuperatorCard extends HTMLElement {
               </div>
             </div>
 
-            <!-- Row 2: 3-Column Centered Toggles (100% Fit, Zero Overflow, Whole Column Clickable) -->
+            <!-- Row 2: 3-Column Centered Toggles -->
             <div class="toggles-grid">
               <div class="toggle-col" id="heaterCol" title="Toggle Reheater">
                 <div class="ios-switch orange" id="heaterSwitch"><div class="thumb"></div></div>
@@ -914,7 +973,19 @@ class SystemairRecuperatorCard extends HTMLElement {
       });
     });
 
-    // Toggle Column Clicks (Full Column Clickable, No False more-info Interceptions)
+    // Central Rotor Circle -> Direct more-info on Climate entity!
+    const rotorEl = root.getElementById('rotorGroup');
+    if (rotorEl) {
+      rotorEl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const climateId = this._getClimateId();
+        if (climateId && this._hass?.states[climateId]) {
+          this._fireMoreInfo(climateId);
+        }
+      });
+    }
+
+    // Toggle Column Clicks (Full Column Clickable)
     root.getElementById('heaterCol').addEventListener('click', (e) => {
       e.stopPropagation();
       this._toggleSwitch('heater');
@@ -951,6 +1022,7 @@ class SystemairRecuperatorCard extends HTMLElement {
     const climateId = this._getClimateId();
     const climate = climateId ? this._hass.states[climateId] : null;
     this._setEntityTarget(root.getElementById('headerClimateGroup'), climateId);
+    this._setEntityTarget(root.getElementById('rotorGroup'), climateId);
 
     const tempVal = root.getElementById('tempVal');
     const modeBadge = root.getElementById('modeBadge');
@@ -987,10 +1059,7 @@ class SystemairRecuperatorCard extends HTMLElement {
     const outdoorColor = this._getTempColor(outdoorTemp);
     root.getElementById('outdoorTempSvg').textContent = outdoorTemp !== null ? `${outdoorTemp.toFixed(1)}°C` : '--°C';
     root.getElementById('outdoorTempSvg').style.fill = outdoorColor;
-    root.getElementById('outdoorUnderglow').style.stroke = outdoorColor;
-    root.getElementById('outdoorCore').style.stroke = outdoorColor;
-    root.getElementById('outdoorParticles').style.stroke = outdoorColor;
-    root.getElementById('outdoorDuctLine').style.stroke = outdoorColor;
+    root.querySelectorAll('.outdoor-flow').forEach(el => el.style.stroke = outdoorColor);
 
     // 3. Exhaust Air Temp & Dynamic Colors
     const exhaustSensor = this._resolveEntity(
@@ -1017,10 +1086,7 @@ class SystemairRecuperatorCard extends HTMLElement {
     root.getElementById('exhaustTempSvg').textContent = exhaustTemp !== null ? `${exhaustTemp.toFixed(1)}°C` : '--°C';
     root.getElementById('exhaustTempSvg').style.fill = exhaustColor;
     root.getElementById('exhaustFlowSvg').textContent = exhaustFlow !== null ? `${Math.round(exhaustFlow)} m³/h` : '-- m³/h';
-    root.getElementById('exhaustUnderglow').style.stroke = exhaustColor;
-    root.getElementById('exhaustCore').style.stroke = exhaustColor;
-    root.getElementById('exhaustParticles').style.stroke = exhaustColor;
-    root.getElementById('exhaustDuctLine').style.stroke = exhaustColor;
+    root.querySelectorAll('.exhaust-flow').forEach(el => el.style.stroke = exhaustColor);
 
     // 4. Extract Air Temp & Dynamic Colors
     const extractSensor = this._resolveEntity(
@@ -1059,10 +1125,7 @@ class SystemairRecuperatorCard extends HTMLElement {
     root.getElementById('extractTempSvg').style.fill = extractColor;
     root.getElementById('extractRhSvg').textContent = extractRh !== null ? `${Math.round(extractRh)}% RH` : '--% RH';
     root.getElementById('extractCo2Svg').textContent = extractCo2 !== null ? `${Math.round(extractCo2)} ppm CO₂` : '-- ppm CO₂';
-    root.getElementById('extractUnderglow').style.stroke = extractColor;
-    root.getElementById('extractCore').style.stroke = extractColor;
-    root.getElementById('extractParticles').style.stroke = extractColor;
-    root.getElementById('extractDuctLine').style.stroke = extractColor;
+    root.querySelectorAll('.extract-flow').forEach(el => el.style.stroke = extractColor);
 
     // 5. Supply Air Temp & Dynamic Colors
     const supplySensor = this._resolveEntity(
@@ -1089,10 +1152,7 @@ class SystemairRecuperatorCard extends HTMLElement {
     root.getElementById('supplyTempSvg').textContent = supplyTemp !== null ? `${supplyTemp.toFixed(1)}°C` : '--°C';
     root.getElementById('supplyTempSvg').style.fill = supplyColor;
     root.getElementById('supplyFlowSvg').textContent = supplyFlow !== null ? `${Math.round(supplyFlow)} m³/h` : '-- m³/h';
-    root.getElementById('supplyUnderglow').style.stroke = supplyColor;
-    root.getElementById('supplyCore').style.stroke = supplyColor;
-    root.getElementById('supplyParticles').style.stroke = supplyColor;
-    root.getElementById('supplyDuctLine').style.stroke = supplyColor;
+    root.querySelectorAll('.supply-flow').forEach(el => el.style.stroke = supplyColor);
 
     // 6. Centrifugal Fan Tachometers (RPM) & Spin Animation
     const safRpmSensor = this._resolveEntity(
@@ -1142,7 +1202,6 @@ class SystemairRecuperatorCard extends HTMLElement {
         /^binary_sensor\..*heat_recovery/
       ]
     );
-    this._setEntityTarget(root.getElementById('rotorGroup'), rotorActiveSensor || climateId);
 
     const rotorWheel = root.getElementById('rotorWheel');
     const isRotorActive = rotorActiveSensor ? (this._getState(rotorActiveSensor) === 'on') : true;
