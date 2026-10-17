@@ -3,7 +3,7 @@
  * Custom Home Assistant card for Systemair SAVE ventilation units with heat recovery.
  * Fully matching visual mockup aesthetics with fluid airflows, realistic snail blowers,
  * dynamic supply air temperature gradient, active serpentine reheater coil, and iOS-style toggles.
- * Version: 1.0.26
+ * Version: 1.0.27
  */
 
 class SystemairRecuperatorCard extends HTMLElement {
@@ -75,21 +75,31 @@ class SystemairRecuperatorCard extends HTMLElement {
     return isNaN(val) ? fallback : val;
   }
 
-  _getSupplyColor(temp) {
-    const t = isFinite(temp) ? Math.max(14, Math.min(28, temp)) : 20.0;
-    // 14°C -> 145deg (emerald green)
-    // 21°C -> 45deg (warm amber-orange)
-    // 28°C -> 0deg (neon coral-red)
-    const ratio = Math.max(0, Math.min(1, (t - 14) / (28 - 14)));
-    const hue = Math.round(145 * (1 - ratio));
-    return `hsl(${hue}, 95%, 56%)`;
-  }
+  _getSupplyColors(temp) {
+    const t = isFinite(temp) ? Math.max(12, Math.min(30, temp)) : 21.0;
+    // Dynamic thermal gradient: transitions toward bright red into the house
+    let start = '#f59e0b';
+    let end = '#ff3b30';
+    let glow = 'rgba(255, 59, 48, 0.45)';
 
-  _getSupplyGlow(temp) {
-    const t = isFinite(temp) ? Math.max(14, Math.min(28, temp)) : 20.0;
-    const ratio = Math.max(0, Math.min(1, (t - 14) / (28 - 14)));
-    const hue = Math.round(145 * (1 - ratio));
-    return `hsla(${hue}, 95%, 56%, 0.45)`;
+    if (t < 16) {
+      start = '#10b981';
+      end   = '#f59e0b';
+      glow  = 'rgba(245, 158, 11, 0.4)';
+    } else if (t < 19) {
+      start = '#f59e0b';
+      end   = '#f97316';
+      glow  = 'rgba(249, 115, 22, 0.45)';
+    } else if (t < 23) {
+      start = '#f97316';
+      end   = '#ff3b30';
+      glow  = 'rgba(255, 59, 48, 0.5)';
+    } else {
+      start = '#ff453a';
+      end   = '#e11d48';
+      glow  = 'rgba(225, 29, 72, 0.55)';
+    }
+    return { start, end, glow };
   }
 
   _render() {
@@ -99,8 +109,9 @@ class SystemairRecuperatorCard extends HTMLElement {
           display: block;
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
           --card-bg: linear-gradient(160deg, #181b24 0%, #11141a 100%);
-          --supply-flow-color: #10b981;
-          --supply-flow-glow: rgba(16, 185, 129, 0.45);
+          --supply-flow-start: #f59e0b;
+          --supply-flow-end: #ff3b30;
+          --supply-flow-glow: rgba(255, 59, 48, 0.45);
         }
         ha-card {
           background: var(--card-bg);
@@ -126,7 +137,7 @@ class SystemairRecuperatorCard extends HTMLElement {
           z-index: 0;
         }
         .glow-left { top: -60px; left: -60px; background: #06b6d4; }
-        .glow-right { bottom: -60px; right: -60px; background: var(--supply-flow-color, #10b981); transition: background 0.6s ease; }
+        .glow-right { bottom: -60px; right: -60px; background: var(--supply-flow-end, #ff3b30); transition: background 0.6s ease; }
 
         .card-content {
           position: relative;
@@ -142,11 +153,13 @@ class SystemairRecuperatorCard extends HTMLElement {
           align-items: center;
           justify-content: space-between;
           padding-bottom: 2px;
+          flex-wrap: nowrap;
         }
         .header-left {
           display: flex;
           align-items: center;
           gap: 10px;
+          flex-shrink: 0;
         }
         .status-dot {
           width: 11px;
@@ -155,16 +168,18 @@ class SystemairRecuperatorCard extends HTMLElement {
           background: #22c55e;
           box-shadow: 0 0 12px #22c55e;
           animation: pulseGlow 2.5s infinite;
+          flex-shrink: 0;
         }
         @keyframes pulseGlow {
           0%, 100% { transform: scale(1); opacity: 0.9; }
           50% { transform: scale(1.25); opacity: 1; box-shadow: 0 0 16px #22c55e; }
         }
         .title {
-          font-size: 1.22rem;
+          font-size: 1.18rem;
           font-weight: 700;
           letter-spacing: -0.01em;
           color: #ffffff;
+          white-space: nowrap;
         }
         .mode-badge {
           font-size: 0.74rem;
@@ -177,6 +192,7 @@ class SystemairRecuperatorCard extends HTMLElement {
           display: inline-flex;
           align-items: center;
           gap: 5px;
+          white-space: nowrap;
         }
         .mode-badge::before {
           content: "";
@@ -195,6 +211,7 @@ class SystemairRecuperatorCard extends HTMLElement {
           border-radius: 12px;
           padding: 3px 6px;
           box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+          flex-shrink: 0;
         }
         .temp-btn {
           background: transparent;
@@ -222,6 +239,7 @@ class SystemairRecuperatorCard extends HTMLElement {
           padding: 0 8px;
           min-width: 54px;
           text-align: center;
+          white-space: nowrap;
         }
 
         /* SVG Schematic Container */
@@ -261,7 +279,7 @@ class SystemairRecuperatorCard extends HTMLElement {
         .flow-outdoor { stroke: #38bdf8; }
         .flow-exhaust { stroke: #60a5fa; }
         .flow-extract { stroke: #fbbf24; }
-        .flow-supply  { stroke: var(--supply-flow-color, #34d399); transition: stroke 0.6s ease; }
+        .flow-supply  { stroke: url(#flowSupplyGrad); }
 
         /* Backward-curved Centrifugal Fan Impeller Rotation */
         .fan-impeller {
@@ -287,7 +305,7 @@ class SystemairRecuperatorCard extends HTMLElement {
 
         /* Serpentine Electric Reheater Coil */
         .heater-coil {
-          stroke: #523e32;
+          stroke: #64748b;
           stroke-width: 3.5;
           fill: none;
           stroke-linecap: round;
@@ -297,7 +315,7 @@ class SystemairRecuperatorCard extends HTMLElement {
         .heater-coil.active {
           stroke: #ff7a18;
           stroke-width: 4.5;
-          filter: drop-shadow(0 0 8px rgba(255, 122, 24, 0.95)) drop-shadow(0 0 16px rgba(255, 90, 0, 0.6));
+          filter: drop-shadow(0 0 10px rgba(255, 122, 24, 0.95)) drop-shadow(0 0 18px rgba(255, 90, 0, 0.65));
           animation: heaterPulse 2s ease-in-out infinite;
         }
         @keyframes heaterPulse {
@@ -309,7 +327,7 @@ class SystemairRecuperatorCard extends HTMLElement {
         .temp-outdoor { fill: #38bdf8; }
         .temp-exhaust { fill: #60a5fa; }
         .temp-extract { fill: #fbbf24; }
-        .temp-supply  { fill: var(--supply-flow-color, #34d399); transition: fill 0.6s ease; }
+        .temp-supply  { fill: var(--supply-flow-end, #ff3b30); transition: fill 0.6s ease; }
 
         /* Controls Deck */
         .controls-deck {
@@ -338,6 +356,7 @@ class SystemairRecuperatorCard extends HTMLElement {
           font-size: 0.84rem;
           font-weight: 500;
           color: #94a3b8;
+          white-space: nowrap;
         }
         .pills-container {
           display: inline-flex;
@@ -386,6 +405,7 @@ class SystemairRecuperatorCard extends HTMLElement {
           font-size: 0.8rem;
           font-weight: 500;
           color: #94a3b8;
+          white-space: nowrap;
         }
         .ios-switch {
           width: 42px;
@@ -422,13 +442,18 @@ class SystemairRecuperatorCard extends HTMLElement {
           transform: translateX(19px);
         }
 
-        /* Preset Modes Chips Row */
+        /* Preset Modes Chips Row (No scrollbar) */
         .presets-row {
           display: flex;
           align-items: center;
           gap: 8px;
           overflow-x: auto;
-          padding-bottom: 2px;
+          padding: 2px 0;
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+        .presets-row::-webkit-scrollbar {
+          display: none;
         }
         .preset-chip {
           background: rgba(0, 0, 0, 0.32);
@@ -488,7 +513,7 @@ class SystemairRecuperatorCard extends HTMLElement {
 
           <!-- Central Architectural Unit Cutaway SVG -->
           <div class="schematic-box">
-            <svg class="schematic" viewBox="0 0 700 330" xmlns="http://www.w3.org/2000/svg">
+            <svg class="schematic" viewBox="0 0 700 340" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <!-- Duct Glass/Metallic Gradient -->
                 <linearGradient id="ductGrad" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -505,6 +530,13 @@ class SystemairRecuperatorCard extends HTMLElement {
                   <stop offset="100%" stop-color="#3b82f6"/>
                 </linearGradient>
 
+                <!-- Dynamic Thermal Gradient for Supply Air Flow into House -->
+                <linearGradient id="flowSupplyGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="var(--supply-flow-start, #f59e0b)"/>
+                  <stop offset="50%" stop-color="var(--supply-flow-end, #ff3b30)"/>
+                  <stop offset="100%" stop-color="var(--supply-flow-end, #ff3b30)"/>
+                </linearGradient>
+
                 <!-- Snail Housing Volute Metallic Gradient -->
                 <linearGradient id="snailGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stop-color="#252d3d"/>
@@ -513,8 +545,8 @@ class SystemairRecuperatorCard extends HTMLElement {
 
                 <!-- Active Electric Heater Radial Glow Aura -->
                 <radialGradient id="heaterRadialGlow" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stop-color="#ff7a18" stop-opacity="0.75"/>
-                  <stop offset="50%" stop-color="#ff9800" stop-opacity="0.35"/>
+                  <stop offset="0%" stop-color="#ff7a18" stop-opacity="0.8"/>
+                  <stop offset="50%" stop-color="#ff9800" stop-opacity="0.4"/>
                   <stop offset="100%" stop-color="#ff5722" stop-opacity="0"/>
                 </radialGradient>
               </defs>
@@ -555,7 +587,7 @@ class SystemairRecuperatorCard extends HTMLElement {
               <g>
                 <rect x="520" y="225" width="135" height="50" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/>
                 <line x1="530" y1="225" x2="530" y2="275" stroke="#475569" stroke-width="3"/>
-                <line x1="640" y1="228" x2="640" y2="272" stroke="var(--supply-flow-color, #34d399)" stroke-width="1.5" stroke-opacity="0.5"/>
+                <line x1="640" y1="228" x2="640" y2="272" stroke="var(--supply-flow-end, #ff3b30)" stroke-width="1.5" stroke-opacity="0.5"/>
               </g>
 
               <!-- 3. Fluid Airflow Streams -->
@@ -578,11 +610,11 @@ class SystemairRecuperatorCard extends HTMLElement {
               <path class="flow-stream-fast flow-exhaust" d="M 395,146 C 420,126 430,101 635,76" stroke-width="1.4" stroke-dasharray="4 6" stroke-opacity="0.7"/>
 
               <!-- Supply Air Stream (Center Rotor -> Bottom Fan -> Heater -> Supply Duct) -->
-              <!-- Dynamically colored via CSS var(--supply-flow-color) -->
-              <path d="M 395,180 C 420,200 430,245 635,250" fill="none" stroke="var(--supply-flow-color, #10b981)" stroke-width="26" stroke-opacity="0.08"/>
-              <path d="M 395,180 C 420,200 430,245 635,250" fill="none" stroke="var(--supply-flow-color, #10b981)" stroke-width="10" stroke-opacity="0.32"/>
-              <path class="flow-stream flow-supply" d="M 395,180 C 420,200 430,245 635,250" stroke-width="3" stroke-dasharray="14 8"/>
-              <path class="flow-stream-fast flow-supply" d="M 395,184 C 420,204 430,249 635,254" stroke-width="1.4" stroke-dasharray="4 6" stroke-opacity="0.7"/>
+              <!-- Beautiful Red Thermal Gradient Flowing into the House -->
+              <path d="M 395,180 C 420,200 430,245 635,250" fill="none" stroke="url(#flowSupplyGrad)" stroke-width="26" stroke-opacity="0.10"/>
+              <path d="M 395,180 C 420,200 430,245 635,250" fill="none" stroke="url(#flowSupplyGrad)" stroke-width="10" stroke-opacity="0.36"/>
+              <path class="flow-stream flow-supply" d="M 395,180 C 420,200 430,245 635,250" stroke-width="3.2" stroke-dasharray="14 8"/>
+              <path class="flow-stream-fast" d="M 395,184 C 420,204 430,249 635,254" stroke="#ffffff" stroke-width="1.4" stroke-dasharray="4 6" stroke-opacity="0.75"/>
 
               <!-- 4. Top-Right Exhaust Snail Blower -->
               <g transform="translate(425, 105)">
@@ -593,7 +625,6 @@ class SystemairRecuperatorCard extends HTMLElement {
                 <!-- Backward-curved 8-Blade Centrifugal Impeller (Centered at 0,0) -->
                 <g id="extractFanSpinner" class="fan-impeller">
                   <circle cx="0" cy="0" r="5" fill="#475569"/>
-                  <!-- 8 Blades radiating with aerodynamic curvature -->
                   <path d="M 0,-4 C 8,-12 18,-8 22,2 C 16,3 8,0 0,-4 Z" fill="#cbd5e1"/>
                   <path d="M 4,0 C 12,8 8,18 -2,22 C -3,16 0,8 4,0 Z" fill="#cbd5e1"/>
                   <path d="M 0,4 C -8,12 -18,8 -22,-2 C -16,-3 -8,0 0,4 Z" fill="#cbd5e1"/>
@@ -603,8 +634,9 @@ class SystemairRecuperatorCard extends HTMLElement {
                   <path d="M -3,3 C -14,4 -18,-6 -14,-16 C -10,-12 -5,-5 -3,3 Z" fill="#94a3b8"/>
                   <path d="M -3,-3 C -4,-14 6,-18 16,-14 C 12,-10 5,-5 -3,-3 Z" fill="#94a3b8"/>
                 </g>
-                <!-- RPM Pointer Callout Line -->
-                <polyline points="0,36 0,48 -35,48" fill="none" stroke="#64748b" stroke-width="1.2" stroke-dasharray="2 2"/>
+                <!-- Clean Angled Pointer Callout to EAF RPM (Clear of Rotor) -->
+                <polyline points="20,24 55,42 95,42" fill="none" stroke="#64748b" stroke-width="1.2" stroke-dasharray="2 2"/>
+                <text x="98" y="45" fill="#94a3b8" font-size="11" font-weight="500" id="extractRpmSvgText">EAF: 1410 RPM</text>
               </g>
 
               <!-- 5. Bottom-Right Supply Snail Blower -->
@@ -616,7 +648,6 @@ class SystemairRecuperatorCard extends HTMLElement {
                 <!-- Backward-curved 8-Blade Centrifugal Impeller (Centered at 0,0) -->
                 <g id="supplyFanSpinner" class="fan-impeller">
                   <circle cx="0" cy="0" r="5" fill="#475569"/>
-                  <!-- 8 Blades radiating with aerodynamic curvature -->
                   <path d="M 0,-4 C 8,-12 18,-8 22,2 C 16,3 8,0 0,-4 Z" fill="#cbd5e1"/>
                   <path d="M 4,0 C 12,8 8,18 -2,22 C -3,16 0,8 4,0 Z" fill="#cbd5e1"/>
                   <path d="M 0,4 C -8,12 -18,8 -22,-2 C -16,-3 -8,0 0,4 Z" fill="#cbd5e1"/>
@@ -626,15 +657,16 @@ class SystemairRecuperatorCard extends HTMLElement {
                   <path d="M -3,3 C -14,4 -18,-6 -14,-16 C -10,-12 -5,-5 -3,3 Z" fill="#94a3b8"/>
                   <path d="M -3,-3 C -4,-14 6,-18 16,-14 C 12,-10 5,-5 -3,-3 Z" fill="#94a3b8"/>
                 </g>
-                <!-- RPM Pointer Callout Line -->
-                <polyline points="0,36 0,46 -80,46" fill="none" stroke="#64748b" stroke-width="1.2" stroke-dasharray="2 2"/>
+                <!-- Clean Pointer Callout to SAF RPM (Below Bottom Chamber) -->
+                <polyline points="0,36 0,55 -55,55" fill="none" stroke="#64748b" stroke-width="1.2" stroke-dasharray="2 2"/>
+                <text x="-60" y="58" text-anchor="end" fill="#94a3b8" font-size="11" font-weight="500" id="supplyRpmSvgText">SAF: 1450 RPM</text>
               </g>
 
               <!-- 6. Electric Reheater Serpentine Coil -->
               <g id="heaterGroup">
                 <!-- Warm Glow Aura Background -->
                 <ellipse id="heaterAura" cx="525" cy="245" rx="42" ry="26" fill="url(#heaterRadialGlow)" opacity="0"/>
-                <!-- 5-loop Serpentine Coil Element -->
+                <!-- 5-loop Serpentine Coil Element (Polished Steel when idle, Neon Orange when active) -->
                 <path id="heaterCoil" class="heater-coil"
                   d="M 495,225 
                      L 495,263 A 6,6 0 0,0 507,263 
@@ -645,7 +677,7 @@ class SystemairRecuperatorCard extends HTMLElement {
                      L 555,225" />
               </g>
 
-              <!-- 7. Rotary Heat Exchanger (Center Wheel) -->
+              <!-- 7. Rotary Heat Exchanger (Center Wheel - Completely Clean of Overlapping Text) -->
               <g id="rotorGroup">
                 <!-- Outer Bezel -->
                 <circle cx="340" cy="165" r="64" fill="#111620" stroke="#252f40" stroke-width="3.5"/>
@@ -695,16 +727,12 @@ class SystemairRecuperatorCard extends HTMLElement {
                 <text x="36" y="280" fill="#94a3b8" font-size="11" font-weight="500" id="extractCo2Svg">580 ppm CO₂</text>
               </g>
 
-              <!-- Bottom-Right: Supply Air (Temperature with dynamic color) -->
+              <!-- Bottom-Right: Supply Air (Temperature with vibrant coral-red color) -->
               <g>
                 <text x="644" y="214" text-anchor="end" fill="#94a3b8" font-size="12" font-weight="600">Supply Air</text>
                 <text x="644" y="240" text-anchor="end" class="temp-supply" font-size="22" font-weight="800" id="supplyTempSvg">20.5°C</text>
                 <text x="644" y="262" text-anchor="end" fill="#94a3b8" font-size="11" font-weight="500" id="supplyFlowSvg">160 m³/h</text>
               </g>
-
-              <!-- RPM Callout Labels -->
-              <text x="385" y="156" text-anchor="end" fill="#94a3b8" font-size="11" font-weight="500" id="extractRpmSvgText">EAF: 1410 RPM</text>
-              <text x="340" y="294" text-anchor="end" fill="#94a3b8" font-size="11" font-weight="500" id="supplyRpmSvgText">SAF: 1450 RPM</text>
             </svg>
           </div>
 
@@ -724,7 +752,7 @@ class SystemairRecuperatorCard extends HTMLElement {
                 </div>
               </div>
 
-              <!-- iOS-Style Toggles -->
+              <!-- iOS-Style Toggles with Non-Wrapping Labels -->
               <div class="toggles-group">
                 <div class="toggle-item" id="heaterToggleItem">
                   <div class="ios-switch orange" id="heaterSwitch"><div class="thumb"></div></div>
@@ -741,15 +769,13 @@ class SystemairRecuperatorCard extends HTMLElement {
               </div>
             </div>
 
-            <!-- Row 2: Presets Chips -->
+            <!-- Row 2: 5 Main Presets Chips (Clean, No Scrollbars) -->
             <div class="presets-row" id="presetsRow">
               <div class="preset-chip" data-mode="auto">Auto</div>
               <div class="preset-chip" data-mode="manual">Manual</div>
               <div class="preset-chip" data-mode="away">Away</div>
               <div class="preset-chip" data-mode="fireplace">Fireplace</div>
               <div class="preset-chip" data-mode="refresh">Refresh</div>
-              <div class="preset-chip" data-mode="crowded">Crowded</div>
-              <div class="preset-chip" data-mode="holiday">Holiday</div>
             </div>
           </div>
         </div>
@@ -767,7 +793,6 @@ class SystemairRecuperatorCard extends HTMLElement {
     root.getElementById('tempUp').addEventListener('click', () => this._changeTargetTemp(+0.5));
 
     // Fan Speed Pills
-    root.querySelectorAll('#fanPills .pill').addEventListener ? null : null;
     root.querySelectorAll('#fanPills .pill').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const speed = e.currentTarget.getAttribute('data-speed');
@@ -864,11 +889,11 @@ class SystemairRecuperatorCard extends HTMLElement {
     if (exhElem) exhElem.textContent = exhaustVal !== null ? `${exhaustVal.toFixed(1)}°C` : '3.8°C';
 
     // Dynamic Supply Air Color Gradient (transitions toward red with temperature)
-    const effectiveSupplyTemp = supplyVal !== null ? supplyVal : 20.5;
-    const supplyColor = this._getSupplyColor(effectiveSupplyTemp);
-    const supplyGlow  = this._getSupplyGlow(effectiveSupplyTemp);
-    this.style.setProperty('--supply-flow-color', supplyColor);
-    this.style.setProperty('--supply-flow-glow', supplyGlow);
+    const effectiveSupplyTemp = supplyVal !== null ? supplyVal : 21.0;
+    const { start, end, glow } = this._getSupplyColors(effectiveSupplyTemp);
+    this.style.setProperty('--supply-flow-start', start);
+    this.style.setProperty('--supply-flow-end', end);
+    this.style.setProperty('--supply-flow-glow', glow);
 
     // 4. Recovery Efficiency (%)
     const effId = this._config.efficiency_entity || this._findEntity([
