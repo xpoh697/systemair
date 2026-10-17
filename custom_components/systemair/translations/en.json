@@ -81,7 +81,6 @@
             "week_schedule_active": {
                 "name": "Week Schedule Active"
             },
-
             "heat_exchange_active": {
                 "name": "Heat Exchange active"
             },
@@ -393,6 +392,9 @@
             },
             "manual_fan_stop_allowed": {
                 "name": "Allow manual fan stop"
+            },
+            "heater": {
+                "name": "Heater"
             }
         },
         "select": {

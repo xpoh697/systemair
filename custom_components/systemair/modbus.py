@@ -1427,6 +1427,15 @@ parameters_list = [
     ),
     # Functions
     ModbusParameter(
+        register=3001,
+        sig=IntegerType.UINT,
+        reg_type=RegisterType.Holding,
+        short="REG_UNIT_CONFIG_REHEATER_TYPE",
+        description="Reheater type: 0 - None; 1 - Water; 2 - Electrical",
+        min_value=0,
+        max_value=3,
+    ),
+    ModbusParameter(
         register=3002,
         sig=IntegerType.INT,
         reg_type=RegisterType.Input,

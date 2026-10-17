@@ -58,13 +58,15 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the switch platform."""
-    async_add_entities(
+    entities: list[SwitchEntity] = [
         SystemairSwitch(
             coordinator=entry.runtime_data.coordinator,
             entity_description=entity_description,
         )
         for entity_description in ENTITY_DESCRIPTIONS
-    )
+    ]
+    entities.append(SystemairHeaterSwitch(coordinator=entry.runtime_data.coordinator))
+    async_add_entities(entities)
 
 
 class SystemairSwitch(SystemairEntity, SwitchEntity):
@@ -103,3 +105,48 @@ class SystemairSwitch(SystemairEntity, SwitchEntity):
     async def async_turn_off(self, **_: Any) -> None:
         """Turn off the switch."""
         await self._async_set_state(value=False)
+
+
+class SystemairHeaterSwitch(SystemairEntity, SwitchEntity):
+    """Systemair heater switch class to activate/deactivate the reheater."""
+
+    _attr_translation_key = "heater"
+    _attr_icon = "mdi:radiator"
+    _attr_entity_category = EntityCategory.CONFIG
+
+    def __init__(self, coordinator: SystemairDataUpdateCoordinator) -> None:
+        """Initialize the heater switch."""
+        super().__init__(coordinator)
+        self._attr_unique_id = f"{coordinator.config_entry.entry_id}-heater"
+        current = self.coordinator.get_modbus_data(parameter_map["REG_UNIT_CONFIG_REHEATER_TYPE"])
+        self._saved_heater_type = current if current and current > 0 else 2
+
+    @property
+    def is_on(self) -> bool | None:
+        """Return true if the heater is enabled."""
+        val = self.coordinator.get_modbus_data(parameter_map["REG_UNIT_CONFIG_REHEATER_TYPE"])
+        if val is None:
+            return None
+        if val > 0:
+            self._saved_heater_type = val
+            return True
+        return False
+
+    async def async_turn_on(self, **_: Any) -> None:
+        """Turn on the heater."""
+        current = self.coordinator.get_modbus_data(parameter_map["REG_UNIT_CONFIG_REHEATER_TYPE"])
+        target = self._saved_heater_type if self._saved_heater_type > 0 else 2
+        if current != target:
+            await self.coordinator.set_modbus_data(parameter_map["REG_UNIT_CONFIG_REHEATER_TYPE"], value=target)
+            await asyncio.sleep(1)
+            await self.coordinator.async_request_refresh()
+
+    async def async_turn_off(self, **_: Any) -> None:
+        """Turn off the heater."""
+        current = self.coordinator.get_modbus_data(parameter_map["REG_UNIT_CONFIG_REHEATER_TYPE"])
+        if current and current > 0:
+            self._saved_heater_type = current
+        if current != 0:
+            await self.coordinator.set_modbus_data(parameter_map["REG_UNIT_CONFIG_REHEATER_TYPE"], value=0)
+            await asyncio.sleep(1)
+            await self.coordinator.async_request_refresh()

@@ -81,7 +81,6 @@
             "week_schedule_active": {
                 "name": "Активно недельное расписание"
             },
-
             "heat_exchange_active": {
                 "name": "Теплообмен активен"
             },
@@ -387,6 +386,9 @@
             },
             "manual_fan_stop_allowed": {
                 "name": "Разрешить ручную остановку вентилятора"
+            },
+            "heater": {
+                "name": "Нагреватель"
             }
         },
         "select": {
