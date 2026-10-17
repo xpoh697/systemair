@@ -2,16 +2,22 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING
+from aiohttp import web
 
+from homeassistant.components import frontend
+from homeassistant.components.http import HomeAssistantView
 from homeassistant.const import (
     CONF_HOST,
     CONF_IP_ADDRESS,
     CONF_PASSWORD,
     CONF_PORT,
     CONF_USERNAME,
+    EVENT_HOMEASSISTANT_STARTED,
     Platform,
 )
+from homeassistant.core import CoreState
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.loader import async_get_loaded_integration
 
@@ -21,6 +27,7 @@ from .const import (
     API_TYPE_MODBUS_SERIAL,
     API_TYPE_MODBUS_TCP,
     API_TYPE_MODBUS_WEBAPI,
+    CARD_FILENAME,
     CONF_API_TYPE,
     CONF_BAUDRATE,
     CONF_BYTESIZE,
@@ -34,6 +41,9 @@ from .const import (
     CONF_WEB_API_MAX_REGISTERS,
     DEFAULT_UPDATE_INTERVAL,
     DEFAULT_WEB_API_MAX_REGISTERS,
+    DOMAIN,
+    LOGGER,
+    VERSION,
 )
 from .coordinator import SystemairDataUpdateCoordinator
 from .data import SystemairConfigEntry, SystemairData
@@ -55,8 +65,112 @@ PLATFORMS: list[Platform] = [
 ]
 
 
+async def _async_register_card(hass: HomeAssistant) -> None:
+    """Register the Lovelace card with a cache-busting version query string."""
+    card_url = f"/api/{DOMAIN}/static/{CARD_FILENAME}?v={VERSION}"
+    # Try to register as a Lovelace resource (Storage Mode)
+    registered_as_resource = await _async_register_lovelace_resource(hass, card_url)
+    if not registered_as_resource:
+        # Fallback for YAML mode
+        frontend.add_extra_js_url(hass, card_url)
+        LOGGER.debug("Registered Systemair card via extra_js_url fallback: %s", card_url)
+    else:
+        LOGGER.debug("Registered Systemair card via Lovelace resource: %s", card_url)
+
+
+async def _async_register_lovelace_resource(hass: HomeAssistant, url: str) -> bool:
+    """Create or update the Lovelace resource entry for the card, cleaning up duplicates."""
+    lovelace_data = hass.data.get("lovelace")
+    if lovelace_data is None:
+        return False
+
+    resources = getattr(lovelace_data, "resources", None)
+    if resources is None:
+        return False
+
+    if not hasattr(resources, "async_create_item") or not hasattr(resources, "async_update_item"):
+        return False
+
+    base_url = url.split("?")[0]
+    existing_items = []
+    try:
+        for item in resources.async_items():
+            existing_url = item.get("url") or ""
+            existing_base = existing_url.split("?")[0]
+            if existing_base == base_url:
+                existing_items.append(item)
+    except Exception:
+        return False
+
+    try:
+        if existing_items:
+            # Update the first resource
+            first_item = existing_items[0]
+            if first_item.get("url") != url:
+                await resources.async_update_item(first_item["id"], {"res_type": "module", "url": url})
+                LOGGER.info("Updated Systemair Lovelace resource: %s", url)
+
+            # Safely delete duplicates in separate step
+            if len(existing_items) > 1 and hasattr(resources, "async_delete_item"):
+                for duplicate in existing_items[1:]:
+                    await resources.async_delete_item(duplicate["id"])
+                    LOGGER.info("Deleted duplicate Systemair Lovelace resource: %s", duplicate.get("url"))
+        else:
+            await resources.async_create_item({"res_type": "module", "url": url})
+            LOGGER.info("Created Systemair Lovelace resource: %s", url)
+    except Exception as err:
+        LOGGER.warning("Failed to register Systemair Lovelace resource: %s", err)
+        return False
+
+    return True
+
+
+class CardStaticView(HomeAssistantView):
+    """View to serve static card files with CORS."""
+    url = f"/api/{DOMAIN}/static/{{filename}}"
+    name = f"api:{DOMAIN}:static"
+    requires_auth = False
+    cors_allowed = True
+
+    def __init__(self, www_path: Path) -> None:
+        self._www_path = www_path
+
+    async def get(self, request, filename: str):
+        """Handle GET request for static files."""
+        if filename != CARD_FILENAME:
+            return web.Response(status=404)
+
+        file_path = self._www_path / filename
+        if not file_path.exists():
+            return web.Response(status=404)
+
+        try:
+            return web.FileResponse(
+                file_path,
+                headers={"Cache-Control": "no-cache, no-store, must-revalidate, max-age=0"}
+            )
+        except Exception:
+            return web.Response(status=500)
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: SystemairConfigEntry) -> bool:
     """Set up this integration using UI."""
+    # Register the static HTTP view immediately (once per HA start to prevent route conflict on reload)
+    hass.data.setdefault(DOMAIN, {})
+    if not hass.data[DOMAIN].get("_view_registered"):
+        if getattr(hass, "http", None) is not None:
+            www_path = Path(__file__).parent / "www"
+            hass.http.register_view(CardStaticView(www_path))
+        hass.data[DOMAIN]["_view_registered"] = True
+
+    # Defer Lovelace card database resource registration to prevent startup deadlocks
+    if hass.state == CoreState.running:
+        hass.async_create_task(_async_register_card(hass))
+    else:
+        async def _register_card_after_start(event):
+            await _async_register_card(hass)
+        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, _register_card_after_start)
+
     api_type = entry.data.get(CONF_API_TYPE, API_TYPE_MODBUS_TCP)
 
     if api_type == API_TYPE_MODBUS_WEBAPI:
