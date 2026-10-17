@@ -4,7 +4,7 @@
  * Fully matching visual mockup aesthetics: edge-to-edge large schematic, fluid airflows,
  * realistic snail blowers, dynamic supply air thermal gradient, active serpentine reheater,
  * bold high-visibility typography, native climate preset switching, and responsive controls.
- * Version: 1.0.33
+ * Version: 1.0.34
  */
 
 class SystemairRecuperatorCard extends HTMLElement {
@@ -20,6 +20,7 @@ class SystemairRecuperatorCard extends HTMLElement {
     this._config = {
       title: 'Systemair SAVE',
       climate_entity: null,
+      outdoor_temp_entity: null,
       unit_type: 'rotary',
       show_co2: true,
       show_humidity: true,
@@ -45,8 +46,13 @@ class SystemairRecuperatorCard extends HTMLElement {
   static getStubConfig() {
     return {
       title: 'Systemair SAVE',
-      unit_type: 'rotary',
+      climate_entity: '',
+      outdoor_temp_entity: '',
     };
+  }
+
+  static async getConfigElement() {
+    return document.createElement('systemair-recuperator-card-editor');
   }
 
   // --- Entity Discovery & Safe Value Extractors ---
@@ -477,7 +483,7 @@ class SystemairRecuperatorCard extends HTMLElement {
           transform: translateX(19px);
         }
 
-        /* Presets Horizontal Row (100% Fit, Zero Overflow) */
+        /* Presets Horizontal Row (100% Fit, Zero Cutoffs) */
         .presets-row {
           display: grid;
           grid-template-columns: repeat(5, 1fr);
@@ -590,7 +596,7 @@ class SystemairRecuperatorCard extends HTMLElement {
               <line x1="67" y1="175" x2="190" y2="175" stroke="#273142" stroke-width="2.5"/>
               <line x1="350" y1="175" x2="473" y2="175" stroke="#273142" stroke-width="2.5"/>
               <line x1="270" y1="22" x2="270" y2="95" stroke="#273142" stroke-width="2.5"/>
-              <line x1="270" y1="255" x2="270" y2="328" stroke="#273142" stroke-width="2.5"/>
+              <line x1="270" y1="255" x2="270" y2="320" stroke="#273142" stroke-width="2.5"/>
 
               <!-- 2. Four Edge-to-Edge Cylindrical Duct Collars -->
               <!-- Top-Left: Outdoor Air Duct -->
@@ -622,7 +628,7 @@ class SystemairRecuperatorCard extends HTMLElement {
               </g>
 
               <!-- 3. Multi-layer Flow Streamlines -->
-              <!-- Channel A: Outdoor Air (Fresh) into House as Supply Air -->
+              <!-- Channel A: Outdoor Air into House as Supply Air -->
               <g id="supplyStreamGroup">
                 <!-- Underglow Tracks -->
                 <path d="M 0,86 C 160,86 210,135 270,175 C 330,215 380,264 540,264" fill="none" stroke="#0ea5e9" stroke-width="18" stroke-opacity="0.12" stroke-linecap="round"/>
@@ -663,9 +669,9 @@ class SystemairRecuperatorCard extends HTMLElement {
                   <path d="M -4,4 C -16,5 -20,-7 -16,-18 C -11,-13 -6,-6 -4,4 Z" fill="#94a3b8"/>
                   <path d="M -4,-4 C -5,-16 7,-20 18,-16 C 13,-11 6,-6 -4,-4 Z" fill="#94a3b8"/>
                 </g>
-                <!-- Extended Angled Pointer Callout to EAF RPM -->
-                <polyline points="20,28 45,45 80,45" fill="none" stroke="#64748b" stroke-width="1.2" stroke-dasharray="2 2"/>
-                <text x="84" y="49" fill="#cbd5e1" font-size="13.5" font-weight="600" id="extractRpmSvgText">EAF: 1140 RPM</text>
+                <!-- Extended Angled Pointer Callout to EAF RPM (Pointing Inwards to Prevent Overflow) -->
+                <polyline points="-18,24 -40,42 -72,42" fill="none" stroke="#64748b" stroke-width="1.2" stroke-dasharray="2 2"/>
+                <text x="-76" y="46" text-anchor="end" fill="#cbd5e1" font-size="13" font-weight="600" id="extractRpmSvgText">EAF: 1140 RPM</text>
               </g>
 
               <!-- 5. Bottom-Right Supply Snail Blower -->
@@ -726,14 +732,14 @@ class SystemairRecuperatorCard extends HTMLElement {
 
                 <!-- Central Digital Efficiency Dial (Bold 30px & 11px) -->
                 <circle cx="270" cy="175" r="48" fill="#141924" stroke="rgba(255, 255, 255, 0.12)" stroke-width="1.5"/>
-                <text x="270" y="178" text-anchor="middle" fill="#ffffff" font-size="30" font-weight="900" id="rotorPctText">87%</text>
+                <text x="270" y="178" text-anchor="middle" fill="#ffffff" font-size="30" font-weight="900" id="rotorPctText">--%</text>
                 <text x="270" y="196" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="700" letter-spacing="1.2">RECOVERY</text>
               </g>
 
-              <!-- Central Filter Remaining Life Badge (Cleanly Integrated Under Rotary Recuperator) -->
+              <!-- Central Filter Remaining Life Badge (Cleanly Integrated Under Unit Chassis) -->
               <g id="filterRemainingGroup">
-                <rect x="155" y="270" width="230" height="22" rx="6" fill="#0f141c" stroke="#253043" stroke-width="1"/>
-                <text x="270" y="285" text-anchor="middle" fill="#94a3b8" font-size="11.5" font-weight="600">
+                <rect x="155" y="324" width="230" height="21" rx="5" fill="#0f141c" stroke="#253043" stroke-width="1"/>
+                <text x="270" y="339" text-anchor="middle" fill="#94a3b8" font-size="11.5" font-weight="600">
                   Filter remaining life: <tspan id="filterDaysSvg" fill="#38bdf8" font-weight="700">-- days</tspan>
                 </text>
               </g>
@@ -873,12 +879,26 @@ class SystemairRecuperatorCard extends HTMLElement {
     }
 
     // 2. Discover and Populate Temperatures
-    const outdoorId = this._config.outdoor_temp_entity || this._findEntity([
-      'sensor.systemair_vtr_300_b_r_outside_air_temperature',
-      'sensor.systemair_outdoor_air_temperature',
-      /out(door|side).*temp/i,
-      /fresh.*temp/i
-    ]);
+    // Custom Outdoor Temp Entity support (allows external weather station/probe)
+    let outdoorTemp = null;
+    const customOutdoorId = this._config.outdoor_temp_entity || this._config.outdoor_temperature_entity || this._config.outside_temp_entity;
+    if (customOutdoorId && this._hass.states[customOutdoorId]) {
+      const customVal = parseFloat(this._hass.states[customOutdoorId].state);
+      if (!isNaN(customVal)) {
+        outdoorTemp = customVal;
+      }
+    }
+    if (outdoorTemp === null) {
+      const defaultOutdoorId = this._findEntity([
+        'sensor.systemair_vtr_300_b_r_outside_air_temperature',
+        'sensor.systemair_outdoor_air_temperature',
+        /outside.*air.*temp/i,
+        /outdoor.*air.*temp/i,
+        /out(door|side).*temp/i,
+      ]);
+      outdoorTemp = this._getNum(defaultOutdoorId, -2.5);
+    }
+
     const supplyId = this._config.supply_temp_entity || this._findEntity([
       'sensor.systemair_vtr_300_b_r_supply_air_temperature',
       'sensor.systemair_supply_air_temperature',
@@ -895,7 +915,6 @@ class SystemairRecuperatorCard extends HTMLElement {
       /extract.*temp/i
     ]);
 
-    const outdoorTemp = this._getNum(outdoorId, -2.5);
     const supplyTemp  = this._getNum(supplyId, 20.5);
     const exhaustTemp = this._getNum(exhaustId, 17.8);
     const extractTemp = this._getNum(extractId, 22.0);
@@ -918,25 +937,33 @@ class SystemairRecuperatorCard extends HTMLElement {
     this.style.setProperty('--supply-flow-end', supColors.end);
     this.style.setProperty('--supply-flow-glow', supColors.glow);
 
-    // 4. Heat Exchanger Efficiency / Recovery Calculation
+    // 4. Heat Exchanger Efficiency / Recovery Calculation (Dynamic thermodynamic calculation)
     let eff = null;
-    const effId = this._config.efficiency_entity || this._findEntity([
-      'sensor.systemair_vtr_300_b_r_thermal_efficiency',
-      'sensor.systemair_efficiency',
-      /efficiency/i,
-      /recovery/i
-    ]);
-    if (effId) {
-      eff = this._getNum(effId, null);
+    if (this._config.efficiency_entity && this._hass.states[this._config.efficiency_entity]) {
+      eff = this._getNum(this._config.efficiency_entity, null);
     }
-    if (eff === null && outdoorTemp !== null && extractTemp !== null && supplyTemp !== null) {
-      const denom = extractTemp - outdoorTemp;
-      if (Math.abs(denom) > 1.5) {
-        eff = ((supplyTemp - outdoorTemp) / denom) * 100;
-        eff = Math.max(0, Math.min(99, eff));
+    if (eff === null) {
+      const heatRecActiveId = this._findEntity([
+        'binary_sensor.systemair_vtr_300_b_r_heat_recovery_active',
+        /heat_recovery_active/i,
+      ]);
+      const isRecActive = heatRecActiveId && this._hass.states[heatRecActiveId]
+        ? this._hass.states[heatRecActiveId].state === 'on'
+        : true;
+
+      if (isRecActive && outdoorTemp !== null && extractTemp !== null && supplyTemp !== null) {
+        const denom = extractTemp - outdoorTemp;
+        if (denom >= 1.0) {
+          const calc = ((supplyTemp - outdoorTemp) / denom) * 100;
+          eff = Math.max(0, Math.min(99, Math.round(calc)));
+        } else {
+          eff = 0;
+        }
+      } else if (!isRecActive) {
+        eff = 0;
       }
     }
-    const finalEff = eff !== null ? Math.round(eff) : 87;
+    const finalEff = eff !== null ? eff : 0;
     const rotorText = root.getElementById('rotorPctText');
     if (rotorText) rotorText.textContent = `${finalEff}%`;
 
@@ -948,24 +975,22 @@ class SystemairRecuperatorCard extends HTMLElement {
       rotorArc.setAttribute('stroke-dasharray', `${fillLen.toFixed(1)} ${gapLen.toFixed(1)}`);
     }
 
-    // 5. Fan RPM Callouts & Impeller Spinner Speeds
+    // 5. Fan RPM Callouts & Impeller Spinner Speeds (Strictly use RPM tachometer sensors)
     const safRpmId = this._config.saf_rpm_entity || this._findEntity([
-      'sensor.systemair_vtr_300_b_r_supply_fan_speed',
+      'sensor.systemair_vtr_300_b_r_supply_air_fan_rpm',
       'sensor.systemair_saf_rpm',
-      /saf.*rpm/i,
-      /supply.*fan.*speed/i,
-      /saf.*speed/i
+      /^sensor\..*supply.*fan.*rpm/i,
+      /^sensor\..*saf.*rpm/i,
     ]);
     const eafRpmId = this._config.eaf_rpm_entity || this._findEntity([
-      'sensor.systemair_vtr_300_b_r_extract_fan_speed',
+      'sensor.systemair_vtr_300_b_r_extract_air_fan_rpm',
       'sensor.systemair_eaf_rpm',
-      /eaf.*rpm/i,
-      /extract.*fan.*speed/i,
-      /eaf.*speed/i
+      /^sensor\..*extract.*fan.*rpm/i,
+      /^sensor\..*eaf.*rpm/i,
     ]);
 
-    const safRpm = this._getNum(safRpmId, 1200);
-    const eafRpm = this._getNum(eafRpmId, 1140);
+    const safRpm = this._getNum(safRpmId, null);
+    const eafRpm = this._getNum(eafRpmId, null);
 
     const safElem = root.getElementById('supplyRpmSvgText');
     if (safElem) safElem.textContent = safRpm !== null ? `SAF: ${Math.round(safRpm)} RPM` : 'SAF: --';
@@ -975,15 +1000,17 @@ class SystemairRecuperatorCard extends HTMLElement {
 
     const supSpinner = root.getElementById('supplyFanSpinner');
     if (supSpinner) {
-      const dur = safRpm && safRpm > 100 ? Math.max(0.3, 1200 / safRpm).toFixed(2) : 0;
+      const isSpinning = safRpm !== null ? safRpm > 50 : (climate && climate.state !== 'off');
+      const dur = safRpm && safRpm > 50 ? Math.max(0.4, Math.min(2.0, 1200 / safRpm)).toFixed(2) : '1.2';
       supSpinner.style.animationDuration = `${dur}s`;
-      supSpinner.style.animationPlayState = (safRpm && safRpm > 100) ? 'running' : 'paused';
+      supSpinner.style.animationPlayState = isSpinning ? 'running' : 'paused';
     }
     const extSpinner = root.getElementById('extractFanSpinner');
     if (extSpinner) {
-      const dur = eafRpm && eafRpm > 100 ? Math.max(0.3, 1140 / eafRpm).toFixed(2) : 0;
+      const isSpinning = eafRpm !== null ? eafRpm > 50 : (climate && climate.state !== 'off');
+      const dur = eafRpm && eafRpm > 50 ? Math.max(0.4, Math.min(2.0, 1140 / eafRpm)).toFixed(2) : '1.2';
       extSpinner.style.animationDuration = `${dur}s`;
-      extSpinner.style.animationPlayState = (eafRpm && eafRpm > 100) ? 'running' : 'paused';
+      extSpinner.style.animationPlayState = isSpinning ? 'running' : 'paused';
     }
 
     // 6. Airflow Volumes, CO2, Humidity
@@ -1032,7 +1059,6 @@ class SystemairRecuperatorCard extends HTMLElement {
     if (co2Elem) co2Elem.textContent = co2Val !== null ? `${Math.round(co2Val)} ppm CO₂` : '580 ppm CO₂';
 
     // 7. Physical Heating Status vs Heater Switch Toggle
-    // The coil on diagram glows ONLY when the physical heating element is energized
     const activeHeatingId = this._config.heating_active_entity || this._findEntity([
       'binary_sensor.systemair_vtr_300_b_r_heater_active',
       'binary_sensor.systemair_vtr_300_b_r_heating_active',
@@ -1112,7 +1138,7 @@ class SystemairRecuperatorCard extends HTMLElement {
     if (climate && climate.state === 'off') {
       fanSpeed = 'off';
     }
-    if (!fanSpeed && safRpm !== undefined) {
+    if (!fanSpeed && safRpm !== null) {
       if (safRpm < 100) fanSpeed = 'off';
       else if (safRpm < 850) fanSpeed = 'low';
       else if (safRpm < 1250) fanSpeed = 'medium';
@@ -1129,7 +1155,7 @@ class SystemairRecuperatorCard extends HTMLElement {
       pill.classList.toggle('active', sp === normSpeed);
     });
 
-    // 11. Update Filter Remaining Life
+    // 11. Update Filter Remaining Life (Placed Under Unit Chassis)
     const filterSensorId = this._config.filter_remaining_entity || this._findEntity([
       'sensor.systemair_vtr_300_b_r_filter_remaining_time',
       'sensor.systemair_filter_remaining_time',
@@ -1289,12 +1315,68 @@ if (!customElements.get('systemair-recuperator-card')) {
   customElements.define('systemair-recuperator-card', SystemairRecuperatorCard);
 }
 
+// Visual Card Editor Class
+class SystemairRecuperatorCardEditor extends HTMLElement {
+  setConfig(config) {
+    this._config = config;
+    this._render();
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    this._render();
+  }
+
+  _render() {
+    if (!this._config) return;
+    this.innerHTML = `
+      <div style="display:flex; flex-direction:column; gap:12px; padding:10px 0; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        <div>
+          <label style="display:block; font-weight:600; margin-bottom:4px; font-size:14px; color:var(--primary-text-color, #f1f5f9);">Заголовок карточки</label>
+          <input type="text" id="cfg_title" value="${this._config.title || 'Systemair SAVE'}" style="width:100%; box-sizing:border-box; padding:8px 10px; border-radius:6px; border:1px solid var(--divider-color, #334155); background:var(--card-background-color, #1e293b); color:var(--primary-text-color, #f8fafc); font-size:14px;"/>
+        </div>
+        <div>
+          <label style="display:block; font-weight:600; margin-bottom:4px; font-size:14px; color:var(--primary-text-color, #f1f5f9);">Сущность климата (climate_entity)</label>
+          <input type="text" id="cfg_climate" placeholder="climate.systemair_vtr_300_b_r_climate" value="${this._config.climate_entity || ''}" style="width:100%; box-sizing:border-box; padding:8px 10px; border-radius:6px; border:1px solid var(--divider-color, #334155); background:var(--card-background-color, #1e293b); color:var(--primary-text-color, #f8fafc); font-size:14px;"/>
+          <span style="font-size:12px; color:var(--secondary-text-color, #94a3b8);">Оставьте пустым для автопоиска.</span>
+        </div>
+        <div>
+          <label style="display:block; font-weight:600; margin-bottom:4px; font-size:14px; color:var(--primary-text-color, #f1f5f9);">Датчик температуры наружного воздуха (outdoor_temp_entity)</label>
+          <input type="text" id="cfg_outdoor" placeholder="sensor.vash_datchik_ulitsy" value="${this._config.outdoor_temp_entity || ''}" style="width:100%; box-sizing:border-box; padding:8px 10px; border-radius:6px; border:1px solid var(--divider-color, #334155); background:var(--card-background-color, #1e293b); color:var(--primary-text-color, #f8fafc); font-size:14px;"/>
+          <span style="font-size:12px; color:var(--secondary-text-color, #94a3b8);">Если указан, используется для отображения Outdoor Air и расчета эффективности.</span>
+        </div>
+      </div>
+    `;
+
+    const update = () => {
+      const title = this.querySelector('#cfg_title').value;
+      const climate = this.querySelector('#cfg_climate').value.trim();
+      const outdoor = this.querySelector('#cfg_outdoor').value.trim();
+      const newConf = {
+        ...this._config,
+        title: title || 'Systemair SAVE',
+        climate_entity: climate || undefined,
+        outdoor_temp_entity: outdoor || undefined,
+      };
+      this.dispatchEvent(new CustomEvent('config-changed', { detail: { config: newConf }, bubbles: true, composed: true }));
+    };
+
+    this.querySelector('#cfg_title').addEventListener('change', update);
+    this.querySelector('#cfg_climate').addEventListener('change', update);
+    this.querySelector('#cfg_outdoor').addEventListener('change', update);
+  }
+}
+
+if (!customElements.get('systemair-recuperator-card-editor')) {
+  customElements.define('systemair-recuperator-card-editor', SystemairRecuperatorCardEditor);
+}
+
 // Add Card to Lovelace Card Picker Registry
 window.customCards = window.customCards || [];
 window.customCards.push({
   type: 'systemair-recuperator-card',
   name: 'Systemair Recuperator Card',
-  description: 'Custom Lovelace card for Systemair SAVE ventilation units with realistic architectural cutaway and dynamic airflows.',
+  description: 'Custom Lovelace card for Systemair SAVE ventilation units with realistic architectural cutaway, dynamic airflows and custom outdoor sensor support.',
   preview: true,
   documentationURL: 'https://github.com/xpoh697/systemair',
 });
