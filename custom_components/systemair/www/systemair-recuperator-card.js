@@ -3,8 +3,8 @@
  * Custom Home Assistant card for Systemair SAVE ventilation units with heat recovery.
  * Fully matching visual mockup aesthetics: edge-to-edge large schematic, fluid airflows,
  * realistic snail blowers, dynamic supply air thermal gradient, active serpentine reheater,
- * and responsive iOS-style controls.
- * Version: 1.0.30
+ * bold high-visibility typography, and responsive iOS-style controls.
+ * Version: 1.0.31
  */
 
 class SystemairRecuperatorCard extends HTMLElement {
@@ -176,20 +176,20 @@ class SystemairRecuperatorCard extends HTMLElement {
           50% { transform: scale(1.25); opacity: 1; box-shadow: 0 0 16px #22c55e; }
         }
         .title {
-          font-size: 1.18rem;
+          font-size: 1.25rem;
           font-weight: 700;
           letter-spacing: -0.01em;
           color: #ffffff;
           white-space: nowrap;
         }
         .mode-badge {
-          font-size: 0.74rem;
+          font-size: 0.78rem;
           font-weight: 600;
           color: #4ade80;
           background: rgba(34, 197, 94, 0.12);
           border: 1px solid rgba(34, 197, 94, 0.3);
           border-radius: 12px;
-          padding: 2px 9px;
+          padding: 3px 10px;
           display: inline-flex;
           align-items: center;
           gap: 5px;
@@ -197,8 +197,8 @@ class SystemairRecuperatorCard extends HTMLElement {
         }
         .mode-badge::before {
           content: "";
-          width: 5px;
-          height: 5px;
+          width: 6px;
+          height: 6px;
           border-radius: 50%;
           background: #4ade80;
         }
@@ -218,10 +218,10 @@ class SystemairRecuperatorCard extends HTMLElement {
           background: transparent;
           border: none;
           color: #94a3b8;
-          font-size: 1.15rem;
+          font-size: 1.2rem;
           font-weight: 600;
-          width: 28px;
-          height: 28px;
+          width: 30px;
+          height: 30px;
           cursor: pointer;
           display: flex;
           align-items: center;
@@ -234,11 +234,11 @@ class SystemairRecuperatorCard extends HTMLElement {
           background: rgba(255, 255, 255, 0.08);
         }
         .temp-val {
-          font-size: 0.96rem;
-          font-weight: 700;
+          font-size: 1.05rem;
+          font-weight: 800;
           color: #f8fafc;
           padding: 0 8px;
-          min-width: 54px;
+          min-width: 58px;
           text-align: center;
           white-space: nowrap;
         }
@@ -325,11 +325,27 @@ class SystemairRecuperatorCard extends HTMLElement {
           50% { stroke: #ff9800; filter: drop-shadow(0 0 12px rgba(255, 152, 0, 1)); }
         }
 
-        /* Typography & Sensor Labels inside SVG */
-        .temp-outdoor { fill: #38bdf8; }
-        .temp-exhaust { fill: #60a5fa; }
-        .temp-extract { fill: #fbbf24; }
-        .temp-supply  { fill: var(--supply-flow-end, #ff3b30); transition: fill 0.6s ease; }
+        /* BOLD HIGH-VISIBILITY TYPOGRAPHY INSIDE SVG */
+        .channel-title {
+          fill: #e2e8f0;
+          font-size: 15px;
+          font-weight: 700;
+          letter-spacing: 0.3px;
+        }
+        .sensor-tag {
+          fill: #94a3b8;
+          font-size: 12px;
+          font-weight: 600;
+        }
+        .sensor-sub {
+          fill: #cbd5e1;
+          font-size: 13.5px;
+          font-weight: 600;
+        }
+        .temp-outdoor { fill: #38bdf8; font-size: 28px; font-weight: 900; }
+        .temp-exhaust { fill: #60a5fa; font-size: 28px; font-weight: 900; }
+        .temp-extract { fill: #fbbf24; font-size: 28px; font-weight: 900; }
+        .temp-supply  { fill: var(--supply-flow-end, #ff3b30); font-size: 28px; font-weight: 900; transition: fill 0.6s ease; }
 
         /* Controls Deck */
         .controls-deck {
@@ -356,9 +372,9 @@ class SystemairRecuperatorCard extends HTMLElement {
           gap: 8px;
         }
         .deck-label {
-          font-size: 0.84rem;
-          font-weight: 500;
-          color: #94a3b8;
+          font-size: 0.9rem;
+          font-weight: 600;
+          color: #cbd5e1;
           white-space: nowrap;
         }
         .pills-container {
@@ -373,9 +389,9 @@ class SystemairRecuperatorCard extends HTMLElement {
           background: transparent;
           border: none;
           color: #94a3b8;
-          font-size: 0.78rem;
-          font-weight: 600;
-          padding: 5px 11px;
+          font-size: 0.86rem;
+          font-weight: 700;
+          padding: 5px 12px;
           border-radius: 9px;
           cursor: pointer;
           transition: all 0.2s;
@@ -400,20 +416,20 @@ class SystemairRecuperatorCard extends HTMLElement {
         .toggle-item {
           display: flex;
           align-items: center;
-          gap: 7px;
+          gap: 8px;
           cursor: pointer;
           user-select: none;
         }
         .toggle-label {
-          font-size: 0.8rem;
-          font-weight: 500;
-          color: #94a3b8;
+          font-size: 0.88rem;
+          font-weight: 600;
+          color: #e2e8f0;
           white-space: nowrap;
         }
         .ios-switch {
-          width: 40px;
-          height: 22px;
-          border-radius: 11px;
+          width: 42px;
+          height: 23px;
+          border-radius: 12px;
           background: #252b36;
           border: 1px solid rgba(255, 255, 255, 0.1);
           position: relative;
@@ -421,8 +437,8 @@ class SystemairRecuperatorCard extends HTMLElement {
           flex-shrink: 0;
         }
         .ios-switch .thumb {
-          width: 16px;
-          height: 16px;
+          width: 17px;
+          height: 17px;
           border-radius: 50%;
           background: #ffffff;
           position: absolute;
@@ -442,7 +458,7 @@ class SystemairRecuperatorCard extends HTMLElement {
           box-shadow: 0 0 10px rgba(255, 152, 0, 0.6);
         }
         .ios-switch.on .thumb {
-          transform: translateX(18px);
+          transform: translateX(19px);
         }
 
         /* Preset Modes Grid (Exactly 5 columns, 100% width, zero cutoffs) */
@@ -457,10 +473,10 @@ class SystemairRecuperatorCard extends HTMLElement {
         .preset-chip {
           background: rgba(0, 0, 0, 0.32);
           border: 1px solid rgba(255, 255, 255, 0.07);
-          color: #94a3b8;
-          font-size: clamp(0.68rem, 2.2vw, 0.8rem);
-          font-weight: 500;
-          padding: 6px 2px;
+          color: #cbd5e1;
+          font-size: clamp(0.72rem, 2.2vw, 0.85rem);
+          font-weight: 600;
+          padding: 7px 2px;
           border-radius: 12px;
           cursor: pointer;
           transition: all 0.2s;
@@ -567,56 +583,56 @@ class SystemairRecuperatorCard extends HTMLElement {
               <!-- 2. Four Edge-to-Edge Cylindrical Duct Collars -->
               <!-- Top-Left: Outdoor Air Duct -->
               <g>
-                <rect x="0" y="50" width="70" height="65" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/>
-                <line x1="60" y1="50" x2="60" y2="115" stroke="#475569" stroke-width="3"/>
-                <line x1="10" y1="53" x2="10" y2="112" stroke="#38bdf8" stroke-width="1.5" stroke-opacity="0.5"/>
+                <rect x="0" y="56" width="70" height="60" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/>
+                <line x1="60" y1="56" x2="60" y2="116" stroke="#475569" stroke-width="3"/>
+                <line x1="10" y1="59" x2="10" y2="113" stroke="#38bdf8" stroke-width="1.5" stroke-opacity="0.5"/>
               </g>
 
               <!-- Top-Right: Exhaust Air Duct -->
               <g>
-                <rect x="470" y="50" width="70" height="65" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/>
-                <line x1="480" y1="50" x2="480" y2="115" stroke="#475569" stroke-width="3"/>
-                <line x1="530" y1="53" x2="530" y2="112" stroke="#60a5fa" stroke-width="1.5" stroke-opacity="0.5"/>
+                <rect x="470" y="56" width="70" height="60" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/>
+                <line x1="480" y1="56" x2="480" y2="116" stroke="#475569" stroke-width="3"/>
+                <line x1="530" y1="59" x2="530" y2="113" stroke="#60a5fa" stroke-width="1.5" stroke-opacity="0.5"/>
               </g>
 
               <!-- Bottom-Left: Extract Air Duct -->
               <g>
-                <rect x="0" y="235" width="70" height="65" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/>
-                <line x1="60" y1="235" x2="60" y2="300" stroke="#475569" stroke-width="3"/>
-                <line x1="10" y1="238" x2="10" y2="297" stroke="#fbbf24" stroke-width="1.5" stroke-opacity="0.5"/>
+                <rect x="0" y="234" width="70" height="60" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/>
+                <line x1="60" y1="234" x2="60" y2="294" stroke="#475569" stroke-width="3"/>
+                <line x1="10" y1="237" x2="10" y2="291" stroke="#fbbf24" stroke-width="1.5" stroke-opacity="0.5"/>
               </g>
 
               <!-- Bottom-Right: Supply Air Duct -->
               <g>
-                <rect x="470" y="235" width="70" height="65" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/>
-                <line x1="480" y1="235" x2="480" y2="300" stroke="#475569" stroke-width="3"/>
-                <line x1="530" y1="238" x2="530" y2="297" stroke="var(--supply-flow-end, #ff3b30)" stroke-width="1.5" stroke-opacity="0.5"/>
+                <rect x="470" y="234" width="70" height="60" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/>
+                <line x1="480" y1="234" x2="480" y2="294" stroke="#475569" stroke-width="3"/>
+                <line x1="530" y1="237" x2="530" y2="291" stroke="var(--supply-flow-end, #ff3b30)" stroke-width="1.5" stroke-opacity="0.5"/>
               </g>
 
               <!-- 3. Broad Volumetric Fluid Airflow Streams -->
               <!-- Outdoor Air Stream (Top-Left -> Center Rotor) -->
-              <path d="M 5,82 C 95,82 155,105 210,155" fill="none" stroke="#06b6d4" stroke-width="32" stroke-opacity="0.09"/>
-              <path d="M 5,82 C 95,82 155,105 210,155" fill="none" stroke="#06b6d4" stroke-width="12" stroke-opacity="0.35"/>
-              <path class="flow-stream flow-outdoor" d="M 5,82 C 95,82 155,105 210,155" stroke-width="3.2" stroke-dasharray="14 8"/>
-              <path class="flow-stream-fast flow-outdoor" d="M 5,86 C 95,86 153,109 208,158" stroke-width="1.5" stroke-dasharray="4 6" stroke-opacity="0.8"/>
+              <path d="M 5,86 C 95,86 155,108 210,155" fill="none" stroke="#06b6d4" stroke-width="32" stroke-opacity="0.09"/>
+              <path d="M 5,86 C 95,86 155,108 210,155" fill="none" stroke="#06b6d4" stroke-width="12" stroke-opacity="0.35"/>
+              <path class="flow-stream flow-outdoor" d="M 5,86 C 95,86 155,108 210,155" stroke-width="3.2" stroke-dasharray="14 8"/>
+              <path class="flow-stream-fast flow-outdoor" d="M 5,90 C 95,90 153,112 208,158" stroke-width="1.5" stroke-dasharray="4 6" stroke-opacity="0.8"/>
 
               <!-- Extract Air Stream (Bottom-Left -> Center Rotor) -->
-              <path d="M 5,268 C 95,268 155,245 210,195" fill="none" stroke="#f59e0b" stroke-width="32" stroke-opacity="0.09"/>
-              <path d="M 5,268 C 95,268 155,245 210,195" fill="none" stroke="#f59e0b" stroke-width="12" stroke-opacity="0.35"/>
-              <path class="flow-stream flow-extract" d="M 5,268 C 95,268 155,245 210,195" stroke-width="3.2" stroke-dasharray="14 8"/>
-              <path class="flow-stream-fast flow-extract" d="M 5,264 C 95,264 153,241 208,192" stroke-width="1.5" stroke-dasharray="4 6" stroke-opacity="0.8"/>
+              <path d="M 5,264 C 95,264 155,242 210,195" fill="none" stroke="#f59e0b" stroke-width="32" stroke-opacity="0.09"/>
+              <path d="M 5,264 C 95,264 155,242 210,195" fill="none" stroke="#f59e0b" stroke-width="12" stroke-opacity="0.35"/>
+              <path class="flow-stream flow-extract" d="M 5,264 C 95,264 155,242 210,195" stroke-width="3.2" stroke-dasharray="14 8"/>
+              <path class="flow-stream-fast flow-extract" d="M 5,260 C 95,260 153,238 208,192" stroke-width="1.5" stroke-dasharray="4 6" stroke-opacity="0.8"/>
 
               <!-- Exhaust Air Stream (Center Rotor -> Top Fan -> Exhaust Duct) -->
-              <path d="M 330,155 C 355,135 375,105 535,82" fill="none" stroke="#3b82f6" stroke-width="32" stroke-opacity="0.09"/>
-              <path d="M 330,155 C 355,135 375,105 535,82" fill="none" stroke="#3b82f6" stroke-width="12" stroke-opacity="0.35"/>
-              <path class="flow-stream flow-exhaust" d="M 330,155 C 355,135 375,105 535,82" stroke-width="3.2" stroke-dasharray="14 8"/>
-              <path class="flow-stream-fast flow-exhaust" d="M 330,151 C 355,131 375,101 535,78" stroke-width="1.5" stroke-dasharray="4 6" stroke-opacity="0.8"/>
+              <path d="M 330,155 C 355,135 375,105 535,86" fill="none" stroke="#3b82f6" stroke-width="32" stroke-opacity="0.09"/>
+              <path d="M 330,155 C 355,135 375,105 535,86" fill="none" stroke="#3b82f6" stroke-width="12" stroke-opacity="0.35"/>
+              <path class="flow-stream flow-exhaust" d="M 330,155 C 355,135 375,105 535,86" stroke-width="3.2" stroke-dasharray="14 8"/>
+              <path class="flow-stream-fast flow-exhaust" d="M 330,151 C 355,131 375,101 535,82" stroke-width="1.5" stroke-dasharray="4 6" stroke-opacity="0.8"/>
 
               <!-- Supply Air Stream (Center Rotor -> Bottom Fan -> Heater -> Supply Duct) -->
-              <path d="M 330,195 C 345,225 360,268 535,268" fill="none" stroke="url(#flowSupplyGrad)" stroke-width="32" stroke-opacity="0.12"/>
-              <path d="M 330,195 C 345,225 360,268 535,268" fill="none" stroke="url(#flowSupplyGrad)" stroke-width="12" stroke-opacity="0.40"/>
-              <path class="flow-stream flow-supply" d="M 330,195 C 345,225 360,268 535,268" stroke-width="3.4" stroke-dasharray="14 8"/>
-              <path class="flow-stream-fast" d="M 330,199 C 345,229 360,272 535,272" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="4 6" stroke-opacity="0.85"/>
+              <path d="M 330,195 C 345,225 360,264 535,264" fill="none" stroke="url(#flowSupplyGrad)" stroke-width="32" stroke-opacity="0.12"/>
+              <path d="M 330,195 C 345,225 360,264 535,264" fill="none" stroke="url(#flowSupplyGrad)" stroke-width="12" stroke-opacity="0.40"/>
+              <path class="flow-stream flow-supply" d="M 330,195 C 345,225 360,264 535,264" stroke-width="3.4" stroke-dasharray="14 8"/>
+              <path class="flow-stream-fast" d="M 330,199 C 345,229 360,268 535,268" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="4 6" stroke-opacity="0.85"/>
 
               <!-- 4. Top-Right Exhaust Snail Blower -->
               <g transform="translate(385, 105)">
@@ -635,9 +651,9 @@ class SystemairRecuperatorCard extends HTMLElement {
                   <path d="M -4,4 C -16,5 -20,-7 -16,-18 C -11,-13 -6,-6 -4,4 Z" fill="#94a3b8"/>
                   <path d="M -4,-4 C -5,-16 7,-20 18,-16 C 13,-11 6,-6 -4,-4 Z" fill="#94a3b8"/>
                 </g>
-                <!-- Clean Angled Pointer Callout to EAF RPM -->
-                <polyline points="20,28 45,45 70,45" fill="none" stroke="#64748b" stroke-width="1.2" stroke-dasharray="2 2"/>
-                <text x="74" y="48" fill="#94a3b8" font-size="11" font-weight="500" id="extractRpmSvgText">EAF: 1140 RPM</text>
+                <!-- Extended Angled Pointer Callout to EAF RPM -->
+                <polyline points="20,28 45,45 80,45" fill="none" stroke="#64748b" stroke-width="1.2" stroke-dasharray="2 2"/>
+                <text x="84" y="49" fill="#cbd5e1" font-size="13.5" font-weight="600" id="extractRpmSvgText">EAF: 1140 RPM</text>
               </g>
 
               <!-- 5. Bottom-Right Supply Snail Blower -->
@@ -657,9 +673,9 @@ class SystemairRecuperatorCard extends HTMLElement {
                   <path d="M -4,4 C -16,5 -20,-7 -16,-18 C -11,-13 -6,-6 -4,4 Z" fill="#94a3b8"/>
                   <path d="M -4,-4 C -5,-16 7,-20 18,-16 C 13,-11 6,-6 -4,-4 Z" fill="#94a3b8"/>
                 </g>
-                <!-- Clean Pointer Callout to SAF RPM -->
-                <polyline points="0,40 0,55 -45,55" fill="none" stroke="#64748b" stroke-width="1.2" stroke-dasharray="2 2"/>
-                <text x="-49" y="58" text-anchor="end" fill="#94a3b8" font-size="11" font-weight="500" id="supplyRpmSvgText">SAF: 1200 RPM</text>
+                <!-- Extended Pointer Callout to SAF RPM -->
+                <polyline points="0,40 0,55 -55,55" fill="none" stroke="#64748b" stroke-width="1.2" stroke-dasharray="2 2"/>
+                <text x="-60" y="59" text-anchor="end" fill="#cbd5e1" font-size="13.5" font-weight="600" id="supplyRpmSvgText">SAF: 1200 RPM</text>
               </g>
 
               <!-- 6. Electric Reheater Serpentine Coil (Refined & Compact: 30x32px, 4 loops) -->
@@ -696,40 +712,40 @@ class SystemairRecuperatorCard extends HTMLElement {
                   <circle cx="270" cy="175" r="60" fill="none" stroke="#1e293b" stroke-width="15" stroke-dasharray="2 3"/>
                 </g>
 
-                <!-- Central Digital Efficiency Dial -->
+                <!-- Central Digital Efficiency Dial (Bold 30px & 11px) -->
                 <circle cx="270" cy="175" r="48" fill="#141924" stroke="rgba(255, 255, 255, 0.12)" stroke-width="1.5"/>
-                <text x="270" y="177" text-anchor="middle" fill="#ffffff" font-size="26" font-weight="800" id="rotorPctText">87%</text>
-                <text x="270" y="195" text-anchor="middle" fill="#94a3b8" font-size="9.5" font-weight="600" letter-spacing="1.2">RECOVERY</text>
+                <text x="270" y="178" text-anchor="middle" fill="#ffffff" font-size="30" font-weight="900" id="rotorPctText">87%</text>
+                <text x="270" y="196" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="700" letter-spacing="1.2">RECOVERY</text>
               </g>
 
-              <!-- 8. Clean Integrated Sensor Typography Inside Collars -->
-              <!-- Top-Left: Outdoor Air -->
+              <!-- 8. BOLD HIGH-VISIBILITY SENSOR TYPOGRAPHY (Clear of All Stream Lines) -->
+              <!-- Top-Left: Outdoor Air (Placed Cleanly Above Duct Pipe) -->
               <g>
-                <text x="12" y="44" fill="#94a3b8" font-size="12" font-weight="600">Outdoor Air</text>
-                <text x="12" y="70" class="temp-outdoor" font-size="23" font-weight="800" id="outdoorTempSvg">-2.5°C</text>
-                <text x="12" y="94" fill="#64748b" font-size="11" font-weight="500">Fresh</text>
+                <text x="12" y="28" class="channel-title">Outdoor Air</text>
+                <text x="12" y="52" class="temp-outdoor" id="outdoorTempSvg">-2.5°C</text>
+                <text x="105" y="51" class="sensor-tag">Fresh</text>
               </g>
 
-              <!-- Top-Right: Exhaust Air -->
+              <!-- Top-Right: Exhaust Air (Placed Cleanly Above Duct Pipe) -->
               <g>
-                <text x="528" y="44" text-anchor="end" fill="#94a3b8" font-size="12" font-weight="600">Exhaust Air</text>
-                <text x="528" y="70" text-anchor="end" class="temp-exhaust" font-size="23" font-weight="800" id="exhaustTempSvg">3.8°C</text>
-                <text x="528" y="94" text-anchor="end" fill="#64748b" font-size="11" font-weight="500">Discharge</text>
+                <text x="528" y="28" text-anchor="end" class="channel-title">Exhaust Air</text>
+                <text x="528" y="52" text-anchor="end" class="temp-exhaust" id="exhaustTempSvg">3.8°C</text>
+                <text x="435" y="51" text-anchor="end" class="sensor-tag">Discharge</text>
               </g>
 
-              <!-- Bottom-Left: Extract Air -->
+              <!-- Bottom-Left: Extract Air (Temp Above Duct, Humidity/CO2 Below Duct) -->
               <g>
-                <text x="12" y="214" fill="#94a3b8" font-size="12" font-weight="600">Extract Air</text>
-                <text x="12" y="238" class="temp-extract" font-size="23" font-weight="800" id="extractTempSvg">22.0°C</text>
-                <text x="12" y="258" fill="#94a3b8" font-size="11" font-weight="500" id="extractRhSvg">48% RH</text>
-                <text x="12" y="276" fill="#94a3b8" font-size="11" font-weight="500" id="extractCo2Svg">580 ppm CO₂</text>
+                <text x="12" y="206" class="channel-title">Extract Air</text>
+                <text x="12" y="230" class="temp-extract" id="extractTempSvg">22.0°C</text>
+                <text x="12" y="314" class="sensor-sub" id="extractRhSvg">48% RH</text>
+                <text x="82" y="314" class="sensor-sub" id="extractCo2Svg">580 ppm CO₂</text>
               </g>
 
-              <!-- Bottom-Right: Supply Air (Right-Aligned, Zero Overlap with Heater) -->
+              <!-- Bottom-Right: Supply Air (Temp Above Duct, Flow Below Duct) -->
               <g>
-                <text x="528" y="214" text-anchor="end" fill="#94a3b8" font-size="12" font-weight="600">Supply Air</text>
-                <text x="528" y="240" text-anchor="end" class="temp-supply" font-size="23" font-weight="800" id="supplyTempSvg">20.5°C</text>
-                <text x="528" y="262" text-anchor="end" fill="#94a3b8" font-size="11" font-weight="500" id="supplyFlowSvg">160 m³/h</text>
+                <text x="528" y="206" text-anchor="end" class="channel-title">Supply Air</text>
+                <text x="528" y="230" text-anchor="end" class="temp-supply" id="supplyTempSvg">20.5°C</text>
+                <text x="528" y="314" text-anchor="end" class="sensor-sub" id="supplyFlowSvg">160 m³/h</text>
               </g>
             </svg>
           </div>
