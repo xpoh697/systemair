@@ -6,7 +6,7 @@
  * realistic snail blowers, active reheater only when heating is physically active, bold typography,
  * direct climate more-info on rotor, full unit-off state handling, top power consumption badge,
  * and interactive controls.
- * Version: 1.0.40
+ * Version: 1.0.41
  */
 
 class SystemairRecuperatorCard extends HTMLElement {
@@ -62,7 +62,6 @@ class SystemairRecuperatorCard extends HTMLElement {
       heat_recovery_entity: '',
       power_entity: '',
       heater_switch: '',
-      heater_active_entity: '',
       eco_switch: '',
       free_cooling_switch: '',
       filter_entity: '',
@@ -908,8 +907,8 @@ class SystemairRecuperatorCard extends HTMLElement {
 
               <!-- Top Power Consumption Badge (Symmetric to bottom Filter badge) -->
               <g id="powerConsumptionGroup" class="clickable" title="Open Power Sensor">
-                <rect x="160" y="25" width="220" height="21" rx="5" fill="#0f141c" stroke="#253043" stroke-width="1"/>
-                <text x="270" y="40" text-anchor="middle" fill="#94a3b8" font-size="11.5" font-weight="600">
+                <rect x="155" y="5" width="230" height="21" rx="5" fill="#0f141c" stroke="#253043" stroke-width="1"/>
+                <text x="270" y="20" text-anchor="middle" fill="#94a3b8" font-size="11.5" font-weight="600">
                   Power consumption: <tspan id="powerUsageSvg" fill="#10b981" font-weight="700">-- W</tspan>
                 </text>
               </g>
@@ -1364,20 +1363,9 @@ class SystemairRecuperatorCard extends HTMLElement {
     }
     root.getElementById('filterDaysSvg').textContent = filterDays !== null ? `${filterDays} days` : '-- days';
 
-    // 9. Reheater Coil (Heating State vs Config Switch)
+    // 9. Reheater Coil (Heating State directly from Climate)
     const heaterSwitch = this._getSwitchEntity('heater');
-    const heaterActiveSensor = this._resolveEntity(
-      ['heater_active_entity', 'heating_active_entity'],
-      [
-        /^binary_sensor\.systemair_vtr.*heater_active/,
-        /^binary_sensor\.systemair.*heater_active/,
-        /^binary_sensor\.systemair_vtr.*heating_active/,
-        /^binary_sensor\.systemair.*heating_active/,
-        /^binary_sensor\..*heater_active/i,
-        /^binary_sensor\..*heating_active/i
-      ]
-    );
-    this._setEntityTarget(root.getElementById('heaterGroup'), heaterActiveSensor || heaterSwitch);
+    this._setEntityTarget(root.getElementById('heaterGroup'), heaterSwitch || climateId);
 
     // Is the heater switch enabled in settings? (controls the footer toggle)
     const isHeaterEnabled = (!isUnitOff) && ((this._optimistic.heater !== undefined)
@@ -1386,14 +1374,11 @@ class SystemairRecuperatorCard extends HTMLElement {
     root.getElementById('heaterSwitch').classList.toggle('on', isHeaterEnabled);
 
     // Is the heater physically heating RIGHT NOW? (controls the glowing coil in SVG)
-    let isHeatingActive = false;
-    if (!isUnitOff && isHeaterEnabled) {
-      if (heaterActiveSensor) {
-        isHeatingActive = (this._getState(heaterActiveSensor) === 'on');
-      } else if (climate && climate.attributes && climate.attributes.hvac_action) {
-        isHeatingActive = (climate.attributes.hvac_action === 'heating');
-      }
-    }
+    // Determined directly from the climate entity's hvac_action attribute:
+    const climateAction = (climate?.attributes?.hvac_action || climate?.attributes?.action || '').toLowerCase();
+    const isHeatingActive = (!isUnitOff) && isHeaterEnabled && (
+      climateAction === 'heating' || (climate?.state === 'heat' && climateAction !== 'idle' && climateAction !== 'fan')
+    );
 
     const coil = root.getElementById('heaterCoil');
     const aura = root.getElementById('heaterAura');
@@ -1532,67 +1517,79 @@ class SystemairRecuperatorCard extends HTMLElement {
 class SystemairRecuperatorCardEditor extends HTMLElement {
   setConfig(config) {
     this._config = config ? { ...config } : {};
-    if (this._hass) {
-      this._render();
+    if (!this._built) {
+      this._buildForm();
+    } else {
+      this._syncFormValues();
     }
   }
 
   set hass(hass) {
+    const firstHass = !this._hass;
     this._hass = hass;
-    if (this._config) {
-      this._render();
+    if (firstHass && this._config && !this._built) {
+      this._buildForm();
     }
   }
 
-  _render() {
+  _buildForm() {
     if (!this._hass || !this._config) return;
-    const cfg = this._config;
+    this._built = true;
 
-    const row = (label, key, placeholder = '', hint = '') => `
+    // Build common datalists for autocomplete
+    const stateKeys = Object.keys(this._hass.states || {});
+    const climateOptions = stateKeys.filter(k => k.startsWith('climate.')).map(k => `<option value="${k}">`).join('');
+    const sensorOptions = stateKeys.filter(k => k.startsWith('sensor.') || k.startsWith('binary_sensor.')).map(k => `<option value="${k}">`).join('');
+    const switchOptions = stateKeys.filter(k => k.startsWith('switch.')).map(k => `<option value="${k}">`).join('');
+
+    const row = (label, key, listId, placeholder = '', hint = '') => `
       <div style="display: flex; flex-direction: column; gap: 4px;">
         <label style="font-size: 0.85rem; font-weight: 600; color: #cbd5e1;">${label}</label>
-        <input type="text" data-key="${key}" value="${cfg[key] || ''}" placeholder="${placeholder}"
+        <input type="text" data-key="${key}" ${listId ? `list="${listId}"` : ''} value="${this._config[key] || ''}" placeholder="${placeholder}"
           style="width: 100%; padding: 7px 10px; border-radius: 6px; border: 1px solid #475569; background: #1e293b; color: #fff; font-size: 0.85rem; box-sizing: border-box;"/>
         ${hint ? `<small style="color: #94a3b8; font-size: 0.75rem;">${hint}</small>` : ''}
       </div>
     `;
 
     this.innerHTML = `
+      <datalist id="sysair-climates">${climateOptions}</datalist>
+      <datalist id="sysair-sensors">${sensorOptions}</datalist>
+      <datalist id="sysair-switches">${switchOptions}</datalist>
+
       <div style="padding: 10px 4px; display: flex; flex-direction: column; gap: 14px; font-family: inherit;">
         <div style="font-weight: 700; font-size: 1.05rem; color: #f8fafc; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px;">
           Card Main Settings
         </div>
-        ${row('Title', 'title', 'Systemair SAVE')}
-        ${row('Climate Entity', 'climate', 'climate.systemair', 'Main climate device for target temp and fan mode.')}
+        ${row('Title', 'title', '', 'Systemair SAVE')}
+        ${row('Climate Entity', 'climate', 'sysair-climates', 'climate.systemair', 'Main climate device for target temp and fan mode.')}
 
         <div style="font-weight: 700; font-size: 0.95rem; color: #f8fafc; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 4px; margin-top: 6px;">
           Air Temperatures & Flows
         </div>
-        ${row('Outdoor Air Temp Entity', 'outdoor_temp_entity', 'sensor.outside_temperature_min', 'Duct 1: Top-Left intake.')}
-        ${row('Supply Air Temp Entity', 'supply_temp_entity', 'sensor.supply_air_temperature', 'Duct 4: Bottom-Right to rooms.')}
-        ${row('Supply Airflow (m³/h)', 'supply_flow_entity', 'sensor.supply_airflow')}
-        ${row('Extract Air Temp Entity', 'extract_temp_entity', 'sensor.extract_air_temperature', 'Duct 3: Bottom-Left from rooms.')}
-        ${row('Extract Humidity Entity (% RH)', 'extract_humidity_entity', 'sensor.extract_relative_humidity')}
-        ${row('Extract CO₂ Entity (ppm)', 'extract_co2_entity', 'sensor.extract_co2')}
-        ${row('Exhaust Air Temp Entity', 'exhaust_temp_entity', 'sensor.exhaust_air_temperature', 'Duct 2: Top-Right discharge.')}
-        ${row('Exhaust Airflow (m³/h)', 'exhaust_flow_entity', 'sensor.exhaust_airflow')}
+        ${row('Outdoor Air Temp Entity', 'outdoor_temp_entity', 'sysair-sensors', 'sensor.outside_temperature_min', 'Duct 1: Top-Left intake.')}
+        ${row('Supply Air Temp Entity', 'supply_temp_entity', 'sysair-sensors', 'sensor.supply_air_temperature', 'Duct 4: Bottom-Right to rooms.')}
+        ${row('Supply Airflow (m³/h)', 'supply_flow_entity', 'sysair-sensors', 'sensor.supply_airflow')}
+        ${row('Extract Air Temp Entity', 'extract_temp_entity', 'sysair-sensors', 'sensor.extract_air_temperature', 'Duct 3: Bottom-Left from rooms.')}
+        ${row('Extract Humidity Entity (% RH)', 'extract_humidity_entity', 'sysair-sensors', 'sensor.extract_relative_humidity')}
+        ${row('Extract CO₂ Entity (ppm)', 'extract_co2_entity', 'sysair-sensors', 'sensor.extract_co2')}
+        ${row('Exhaust Air Temp Entity', 'exhaust_temp_entity', 'sysair-sensors', 'sensor.exhaust_air_temperature', 'Duct 2: Top-Right discharge.')}
+        ${row('Exhaust Airflow (m³/h)', 'exhaust_flow_entity', 'sysair-sensors', 'sensor.exhaust_airflow')}
 
         <div style="font-weight: 700; font-size: 0.95rem; color: #f8fafc; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 4px; margin-top: 6px;">
           Fans, Rotor, Power & Filter
         </div>
-        ${row('Power Consumption Sensor', 'power_entity', 'sensor.systemair_power', 'Sensor for electrical power consumption (Watts or kW).')}
-        ${row('Supply Fan RPM Entity (SAF)', 'saf_rpm_entity', 'sensor.supply_fan_rpm')}
-        ${row('Extract Fan RPM Entity (EAF)', 'eaf_rpm_entity', 'sensor.extract_fan_rpm')}
-        ${row('Heat Recovery Binary Sensor', 'heat_recovery_entity', 'binary_sensor.heat_recovery_active')}
-        ${row('Filter Remaining Life Entity', 'filter_entity', 'sensor.filter_remaining_time')}
+        ${row('Power Consumption Sensor', 'power_entity', 'sysair-sensors', 'sensor.systemair_power', 'Sensor for electrical power consumption (Watts or kW).')}
+        ${row('Supply Fan RPM Entity (SAF)', 'saf_rpm_entity', 'sysair-sensors', 'sensor.supply_fan_rpm')}
+        ${row('Extract Fan RPM Entity (EAF)', 'eaf_rpm_entity', 'sysair-sensors', 'sensor.extract_fan_rpm')}
+        ${row('Heat Recovery Binary Sensor', 'heat_recovery_entity', 'sysair-sensors', 'binary_sensor.heat_recovery_active')}
+        ${row('Filter Remaining Life Entity', 'filter_entity', 'sysair-sensors', 'sensor.filter_remaining_time')}
 
         <div style="font-weight: 700; font-size: 0.95rem; color: #f8fafc; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 4px; margin-top: 6px;">
-          Functional Switches & Heating Status
+          Functional Switches
         </div>
-        ${row('Heater Switch (Enable/Disable)', 'heater_switch', 'switch.systemair_heater', 'Controls permission to run reheater.')}
-        ${row('Heater Active Sensor (Optional)', 'heater_active_entity', 'binary_sensor.systemair_heater_active', 'Binary sensor showing if the heating element is physically active right now.')}
-        ${row('Eco Mode Switch', 'eco_switch', 'switch.systemair_eco_mode')}
-        ${row('Free Cooling Switch', 'free_cooling_switch', 'switch.systemair_free_cooling')}
+        ${row('Heater Switch (Enable/Disable)', 'heater_switch', 'sysair-switches', 'switch.systemair_heater', 'Controls permission to run reheater.')}
+        ${row('Eco Mode Switch', 'eco_switch', 'sysair-switches', 'switch.systemair_eco_mode')}
+        ${row('Free Cooling Switch', 'free_cooling_switch', 'sysair-switches', 'switch.systemair_free_cooling')}
       </div>
     `;
 
@@ -1603,6 +1600,19 @@ class SystemairRecuperatorCardEditor extends HTMLElement {
         this._config = { ...this._config, [key]: val };
         this._fireChanged();
       });
+    });
+  }
+
+  _syncFormValues() {
+    if (!this._config) return;
+    this.querySelectorAll('input[data-key]').forEach(input => {
+      if (document.activeElement !== input) {
+        const key = input.getAttribute('data-key');
+        const currentVal = this._config[key] || '';
+        if (input.value !== currentVal) {
+          input.value = currentVal;
+        }
+      }
     });
   }
 
