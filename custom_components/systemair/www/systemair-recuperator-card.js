@@ -3,7 +3,7 @@
  * Custom Home Assistant card for Systemair SAVE ventilation units with heat recovery.
  * Fully matching visual mockup aesthetics with fluid airflows, realistic snail blowers,
  * dynamic supply air temperature gradient, active serpentine reheater coil, and iOS-style toggles.
- * Version: 1.0.27
+ * Version: 1.0.28
  */
 
 class SystemairRecuperatorCard extends HTMLElement {
@@ -388,7 +388,7 @@ class SystemairRecuperatorCard extends HTMLElement {
           box-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
         }
 
-        /* iOS-Style Switches */
+        /* iOS-Style Switches with Non-Wrapping Labels */
         .toggles-group {
           display: flex;
           align-items: center;
@@ -442,31 +442,31 @@ class SystemairRecuperatorCard extends HTMLElement {
           transform: translateX(19px);
         }
 
-        /* Preset Modes Chips Row (No scrollbar) */
+        /* Preset Modes Grid (Exactly 5 columns, 100% width, zero cutoffs) */
         .presets-row {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          overflow-x: auto;
+          display: grid;
+          grid-template-columns: repeat(5, 1fr);
+          gap: 6px;
+          width: 100%;
+          box-sizing: border-box;
           padding: 2px 0;
-          scrollbar-width: none;
-          -ms-overflow-style: none;
-        }
-        .presets-row::-webkit-scrollbar {
-          display: none;
         }
         .preset-chip {
           background: rgba(0, 0, 0, 0.32);
           border: 1px solid rgba(255, 255, 255, 0.07);
           color: #94a3b8;
-          font-size: 0.78rem;
+          font-size: clamp(0.68rem, 2.2vw, 0.78rem);
           font-weight: 500;
-          padding: 6px 14px;
+          padding: 6px 2px;
           border-radius: 12px;
           cursor: pointer;
           transition: all 0.2s;
           white-space: nowrap;
+          text-align: center;
+          overflow: hidden;
+          text-overflow: ellipsis;
           user-select: none;
+          box-sizing: border-box;
         }
         .preset-chip:hover {
           color: #ffffff;
@@ -677,12 +677,12 @@ class SystemairRecuperatorCard extends HTMLElement {
                      L 555,225" />
               </g>
 
-              <!-- 7. Rotary Heat Exchanger (Center Wheel - Completely Clean of Overlapping Text) -->
+              <!-- 7. Rotary Heat Exchanger (Center Wheel - Dynamic Gauge Arc) -->
               <g id="rotorGroup">
                 <!-- Outer Bezel -->
                 <circle cx="340" cy="165" r="64" fill="#111620" stroke="#252f40" stroke-width="3.5"/>
-                <!-- Multi-color Gradient Recovery Gauge Arc -->
-                <circle cx="340" cy="165" r="57" fill="none" stroke="url(#gaugeGrad)" stroke-width="4.5" stroke-dasharray="270 90" stroke-linecap="round"/>
+                <!-- Multi-color Gradient Recovery Gauge Arc (Rotated -90deg so it fills clockwise from 12 o'clock) -->
+                <circle id="rotorGaugeArc" cx="340" cy="165" r="57" fill="none" stroke="url(#gaugeGrad)" stroke-width="4.5" stroke-dasharray="311 47" stroke-linecap="round" style="transition: stroke-dasharray 0.8s ease-out; transform: rotate(-90deg); transform-origin: 340px 165px;"/>
 
                 <!-- Rotating Radial Vanes Matrix -->
                 <g id="rotorWheel" class="rotor-spin-group">
@@ -708,30 +708,30 @@ class SystemairRecuperatorCard extends HTMLElement {
               <!-- Top-Left: Outdoor Air -->
               <g>
                 <text x="36" y="44" fill="#94a3b8" font-size="12" font-weight="600">Outdoor Air</text>
-                <text x="36" y="70" class="temp-outdoor" font-size="22" font-weight="800" id="outdoorTempSvg">-2.5°C</text>
-                <text x="36" y="122" fill="#64748b" font-size="11" font-weight="500">Fresh</text>
+                <text x="36" y="68" class="temp-outdoor" font-size="22" font-weight="800" id="outdoorTempSvg">-2.5°C</text>
+                <text x="36" y="90" fill="#64748b" font-size="11" font-weight="500">Fresh</text>
               </g>
 
               <!-- Top-Right: Exhaust Air -->
               <g>
                 <text x="644" y="44" text-anchor="end" fill="#94a3b8" font-size="12" font-weight="600">Exhaust Air</text>
-                <text x="644" y="70" text-anchor="end" class="temp-exhaust" font-size="22" font-weight="800" id="exhaustTempSvg">3.8°C</text>
-                <text x="644" y="122" text-anchor="end" fill="#64748b" font-size="11" font-weight="500">Discharge</text>
+                <text x="644" y="68" text-anchor="end" class="temp-exhaust" font-size="22" font-weight="800" id="exhaustTempSvg">3.8°C</text>
+                <text x="644" y="90" text-anchor="end" fill="#64748b" font-size="11" font-weight="500">Discharge</text>
               </g>
 
-              <!-- Bottom-Left: Extract Air -->
+              <!-- Bottom-Left: Extract Air (Safely within duct collar) -->
               <g>
                 <text x="36" y="214" fill="#94a3b8" font-size="12" font-weight="600">Extract Air</text>
-                <text x="36" y="240" class="temp-extract" font-size="22" font-weight="800" id="extractTempSvg">22.0°C</text>
-                <text x="36" y="262" fill="#94a3b8" font-size="11" font-weight="500" id="extractRhSvg">48% RH</text>
-                <text x="36" y="280" fill="#94a3b8" font-size="11" font-weight="500" id="extractCo2Svg">580 ppm CO₂</text>
+                <text x="36" y="234" class="temp-extract" font-size="22" font-weight="800" id="extractTempSvg">22.0°C</text>
+                <text x="36" y="252" fill="#94a3b8" font-size="11" font-weight="500" id="extractRhSvg">48% RH</text>
+                <text x="36" y="268" fill="#94a3b8" font-size="11" font-weight="500" id="extractCo2Svg">580 ppm CO₂</text>
               </g>
 
-              <!-- Bottom-Right: Supply Air (Temperature with vibrant coral-red color) -->
+              <!-- Bottom-Right: Supply Air (Safely within duct collar) -->
               <g>
                 <text x="644" y="214" text-anchor="end" fill="#94a3b8" font-size="12" font-weight="600">Supply Air</text>
-                <text x="644" y="240" text-anchor="end" class="temp-supply" font-size="22" font-weight="800" id="supplyTempSvg">20.5°C</text>
-                <text x="644" y="262" text-anchor="end" fill="#94a3b8" font-size="11" font-weight="500" id="supplyFlowSvg">160 m³/h</text>
+                <text x="644" y="238" text-anchor="end" class="temp-supply" font-size="22" font-weight="800" id="supplyTempSvg">20.5°C</text>
+                <text x="644" y="258" text-anchor="end" fill="#94a3b8" font-size="11" font-weight="500" id="supplyFlowSvg">160 m³/h</text>
               </g>
             </svg>
           </div>
@@ -769,7 +769,7 @@ class SystemairRecuperatorCard extends HTMLElement {
               </div>
             </div>
 
-            <!-- Row 2: 5 Main Presets Chips (Clean, No Scrollbars) -->
+            <!-- Row 2: 5 Main Presets Grid (100% Fit, Zero Cutoffs) -->
             <div class="presets-row" id="presetsRow">
               <div class="preset-chip" data-mode="auto">Auto</div>
               <div class="preset-chip" data-mode="manual">Manual</div>
@@ -792,7 +792,7 @@ class SystemairRecuperatorCard extends HTMLElement {
     root.getElementById('tempDown').addEventListener('click', () => this._changeTargetTemp(-0.5));
     root.getElementById('tempUp').addEventListener('click', () => this._changeTargetTemp(+0.5));
 
-    // Fan Speed Pills
+    // Fan Speed Pills with Immediate Optimistic Feedback
     root.querySelectorAll('#fanPills .pill').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const speed = e.currentTarget.getAttribute('data-speed');
@@ -800,7 +800,7 @@ class SystemairRecuperatorCard extends HTMLElement {
       });
     });
 
-    // Preset Chips
+    // Preset Chips with Immediate Optimistic Feedback
     root.querySelectorAll('#presetsRow .preset-chip').forEach(chip => {
       chip.addEventListener('click', (e) => {
         const mode = e.currentTarget.getAttribute('data-mode');
@@ -837,7 +837,9 @@ class SystemairRecuperatorCard extends HTMLElement {
 
     // 2. Preset Mode
     let currentMode = 'auto';
-    if (climate && climate.attributes && climate.attributes.preset_mode) {
+    if (this._optimistic.preset_mode !== undefined) {
+      currentMode = this._optimistic.preset_mode;
+    } else if (climate && climate.attributes && climate.attributes.preset_mode) {
       currentMode = climate.attributes.preset_mode.toLowerCase();
     }
     const modeBadge = root.getElementById('modeBadge');
@@ -880,22 +882,22 @@ class SystemairRecuperatorCard extends HTMLElement {
     if (outElem) outElem.textContent = outdoorVal !== null ? `${outdoorVal.toFixed(1)}°C` : '--.-°C';
 
     const supElem = root.getElementById('supplyTempSvg');
-    if (supElem) supElem.textContent = supplyVal !== null ? `${supplyVal.toFixed(1)}°C` : '20.5°C';
+    if (supElem) supElem.textContent = supplyVal !== null ? `${supplyVal.toFixed(1)}°C` : '20.0°C';
 
     const extElem = root.getElementById('extractTempSvg');
-    if (extElem) extElem.textContent = extractVal !== null ? `${extractVal.toFixed(1)}°C` : '22.0°C';
+    if (extElem) extElem.textContent = extractVal !== null ? `${extractVal.toFixed(1)}°C` : '21.6°C';
 
     const exhElem = root.getElementById('exhaustTempSvg');
-    if (exhElem) exhElem.textContent = exhaustVal !== null ? `${exhaustVal.toFixed(1)}°C` : '3.8°C';
+    if (exhElem) exhElem.textContent = exhaustVal !== null ? `${exhaustVal.toFixed(1)}°C` : '18.7°C';
 
     // Dynamic Supply Air Color Gradient (transitions toward red with temperature)
-    const effectiveSupplyTemp = supplyVal !== null ? supplyVal : 21.0;
+    const effectiveSupplyTemp = supplyVal !== null ? supplyVal : 20.0;
     const { start, end, glow } = this._getSupplyColors(effectiveSupplyTemp);
     this.style.setProperty('--supply-flow-start', start);
     this.style.setProperty('--supply-flow-end', end);
     this.style.setProperty('--supply-flow-glow', glow);
 
-    // 4. Recovery Efficiency (%)
+    // 4. Recovery Efficiency (%) & Dynamic Gauge Arc
     const effId = this._config.efficiency_entity || this._findEntity([
       'sensor.systemair_heat_exchanger_efficiency',
       /efficiency/i,
@@ -911,8 +913,18 @@ class SystemairRecuperatorCard extends HTMLElement {
         effVal = Math.max(0, Math.min(99, Math.round(calculated)));
       }
     }
+    const finalEff = effVal !== null ? Math.round(effVal) : 87;
     const effElem = root.getElementById('rotorPctText');
-    if (effElem) effElem.textContent = effVal !== null ? `${Math.round(effVal)}%` : '84%';
+    if (effElem) effElem.textContent = `${finalEff}%`;
+
+    // Dynamic SVG Gauge Arc Length
+    const gaugeArc = root.getElementById('rotorGaugeArc');
+    if (gaugeArc) {
+      const totalCircumference = 358.14; // 2 * Math.PI * 57
+      const filled = (Math.max(5, Math.min(100, finalEff)) / 100) * totalCircumference;
+      const blank = totalCircumference - filled;
+      gaugeArc.setAttribute('stroke-dasharray', `${filled.toFixed(1)} ${blank.toFixed(1)}`);
+    }
 
     // 5. Fans RPM and Speeds
     const safRpmId = this._config.saf_rpm_entity || this._findEntity([
@@ -925,8 +937,8 @@ class SystemairRecuperatorCard extends HTMLElement {
       /extract.*fan.*rpm/i,
       /eaf.*rpm/i
     ]);
-    const safRpm = this._getNum(safRpmId, 1450);
-    const eafRpm = this._getNum(eafRpmId, 1410);
+    const safRpm = this._getNum(safRpmId, 1200);
+    const eafRpm = this._getNum(eafRpmId, 1140);
 
     const safElem = root.getElementById('supplyRpmSvgText');
     if (safElem) safElem.textContent = `SAF: ${safRpm} RPM`;
@@ -953,7 +965,7 @@ class SystemairRecuperatorCard extends HTMLElement {
       /humidity/i,
       /extract.*rh/i
     ]);
-    const rhVal = this._getNum(rhId, 48);
+    const rhVal = this._getNum(rhId, 55);
     const rhElem = root.getElementById('extractRhSvg');
     if (rhElem) rhElem.textContent = `${Math.round(rhVal)}% RH`;
 
@@ -961,7 +973,7 @@ class SystemairRecuperatorCard extends HTMLElement {
       'sensor.systemair_co2_level',
       /co2/i
     ]);
-    const co2Val = this._getNum(co2Id, 580);
+    const co2Val = this._getNum(co2Id, 465);
     const co2Elem = root.getElementById('extractCo2Svg');
     if (co2Elem) co2Elem.textContent = `${Math.round(co2Val)} ppm CO₂`;
 
@@ -970,7 +982,7 @@ class SystemairRecuperatorCard extends HTMLElement {
       /air.*flow/i,
       /volume/i
     ]);
-    const flowVal = this._getNum(flowId, 160);
+    const flowVal = this._getNum(flowId, 81);
     const flowElem = root.getElementById('supplyFlowSvg');
     if (flowElem) flowElem.textContent = `${Math.round(flowVal)} m³/h`;
 
@@ -1015,13 +1027,28 @@ class SystemairRecuperatorCard extends HTMLElement {
     if (freeCoolSwitch) freeCoolSwitch.classList.toggle('on', !!freeCoolActive);
 
     // 9. Active Fan Speed Pill
-    let fanSpeed = 'auto';
-    if (climate && climate.attributes && climate.attributes.fan_mode) {
-      fanSpeed = String(climate.attributes.fan_mode).toLowerCase();
+    let activeSpeed = null;
+    if (this._optimistic.fanSpeed !== undefined) {
+      activeSpeed = this._optimistic.fanSpeed;
+    } else if (climate && climate.attributes && climate.attributes.fan_mode) {
+      const fm = String(climate.attributes.fan_mode).toLowerCase();
+      if (['1', '2', '3', '4', '5', 'boost'].includes(fm)) {
+        activeSpeed = fm;
+      } else if (fm === 'low') activeSpeed = '1';
+      else if (fm === 'medium') activeSpeed = '3';
+      else if (fm === 'high') activeSpeed = 'boost';
+    }
+    // Fallback: estimate from RPM if running in auto
+    if (!activeSpeed && safRpm > 0) {
+      if (safRpm < 600) activeSpeed = '1';
+      else if (safRpm < 950) activeSpeed = '2';
+      else if (safRpm < 1350) activeSpeed = '3';
+      else if (safRpm < 1700) activeSpeed = '4';
+      else activeSpeed = 'boost';
     }
     root.querySelectorAll('#fanPills .pill').forEach(btn => {
       const sp = btn.getAttribute('data-speed');
-      btn.classList.toggle('active', sp === fanSpeed || (fanSpeed === 'high' && sp === 'boost') || (fanSpeed === 'medium' && sp === '3') || (fanSpeed === 'low' && sp === '1'));
+      btn.classList.toggle('active', sp === activeSpeed);
     });
   }
 
@@ -1056,23 +1083,33 @@ class SystemairRecuperatorCard extends HTMLElement {
 
   _setFanSpeed(speed) {
     if (!this._hass) return;
+    this._optimistic.fanSpeed = speed;
+    this._updateValues();
+
     const climateId = this._config.climate_entity || this._findEntity([/^climate\.systemair/]);
     if (!climateId) return;
 
     this._hass.callService('climate', 'set_fan_mode', {
       entity_id: climateId,
       fan_mode: speed,
+    }).then(() => {
+      setTimeout(() => { delete this._optimistic.fanSpeed; }, 3500);
     });
   }
 
   _setPresetMode(mode) {
     if (!this._hass) return;
+    this._optimistic.preset_mode = mode;
+    this._updateValues();
+
     const climateId = this._config.climate_entity || this._findEntity([/^climate\.systemair/]);
     if (!climateId) return;
 
     this._hass.callService('climate', 'set_preset_mode', {
       entity_id: climateId,
       preset_mode: mode,
+    }).then(() => {
+      setTimeout(() => { delete this._optimistic.preset_mode; }, 3500);
     });
   }
 
