@@ -4,7 +4,7 @@
  * Fully matching visual mockup aesthetics: edge-to-edge large schematic, fluid airflows,
  * realistic snail blowers, dynamic supply air thermal gradient, active serpentine reheater,
  * and responsive iOS-style controls.
- * Version: 1.0.29
+ * Version: 1.0.30
  */
 
 class SystemairRecuperatorCard extends HTMLElement {
@@ -294,9 +294,9 @@ class SystemairRecuperatorCard extends HTMLElement {
           to { transform: rotate(360deg); }
         }
 
-        /* Rotary Wheel Spin */
+        /* Rotary Wheel Spin (Centered strictly at 270px 175px) */
         .rotor-spin-group {
-          transform-origin: 300px 175px;
+          transform-origin: 270px 175px;
           animation: rotorSpin 8s linear infinite;
           will-change: transform;
         }
@@ -305,10 +305,10 @@ class SystemairRecuperatorCard extends HTMLElement {
           to { transform: rotate(360deg); }
         }
 
-        /* Serpentine Electric Reheater Coil */
+        /* Serpentine Electric Reheater Coil (Refined & Compact) */
         .heater-coil {
           stroke: #64748b;
-          stroke-width: 3.8;
+          stroke-width: 2.6;
           fill: none;
           stroke-linecap: round;
           stroke-linejoin: round;
@@ -316,13 +316,13 @@ class SystemairRecuperatorCard extends HTMLElement {
         }
         .heater-coil.active {
           stroke: #ff7a18;
-          stroke-width: 4.8;
-          filter: drop-shadow(0 0 10px rgba(255, 122, 24, 0.95)) drop-shadow(0 0 20px rgba(255, 90, 0, 0.7));
+          stroke-width: 3.4;
+          filter: drop-shadow(0 0 6px rgba(255, 122, 24, 0.95)) drop-shadow(0 0 12px rgba(255, 90, 0, 0.7));
           animation: heaterPulse 2s ease-in-out infinite;
         }
         @keyframes heaterPulse {
-          0%, 100% { stroke: #ff7a18; filter: drop-shadow(0 0 8px rgba(255, 122, 24, 0.85)); }
-          50% { stroke: #ff9800; filter: drop-shadow(0 0 16px rgba(255, 152, 0, 1)); }
+          0%, 100% { stroke: #ff7a18; filter: drop-shadow(0 0 6px rgba(255, 122, 24, 0.85)); }
+          50% { stroke: #ff9800; filter: drop-shadow(0 0 12px rgba(255, 152, 0, 1)); }
         }
 
         /* Typography & Sensor Labels inside SVG */
@@ -516,7 +516,7 @@ class SystemairRecuperatorCard extends HTMLElement {
 
           <!-- Central Architectural Unit Cutaway SVG - MASSIVE FULL-WIDTH SCHEMATIC -->
           <div class="schematic-box">
-            <svg class="schematic" viewBox="0 0 600 350" xmlns="http://www.w3.org/2000/svg">
+            <svg class="schematic" viewBox="0 0 540 350" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <!-- Duct Glass/Metallic Gradient -->
                 <linearGradient id="ductGrad" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -554,72 +554,72 @@ class SystemairRecuperatorCard extends HTMLElement {
                 </radialGradient>
               </defs>
 
-              <!-- 1. Systemair Unit Chassis Frame (Expanded to 410px width) -->
-              <rect x="95" y="20" width="410" height="310" rx="20" fill="#141822" stroke="#252d3d" stroke-width="2.5"/>
-              <rect x="102" y="27" width="396" height="296" rx="16" fill="#181d28" stroke="#1f2633" stroke-width="1.5"/>
+              <!-- 1. Systemair Unit Chassis Frame (Expanded to 420px width x 320px height) -->
+              <rect x="60" y="15" width="420" height="320" rx="20" fill="#141822" stroke="#252d3d" stroke-width="2.5"/>
+              <rect x="67" y="22" width="406" height="306" rx="16" fill="#181d28" stroke="#1f2633" stroke-width="1.5"/>
 
               <!-- Internal Structural Rib Dividers -->
-              <line x1="102" y1="175" x2="225" y2="175" stroke="#273142" stroke-width="2.5"/>
-              <line x1="375" y1="175" x2="498" y2="175" stroke="#273142" stroke-width="2.5"/>
-              <line x1="300" y1="27" x2="300" y2="100" stroke="#273142" stroke-width="2.5"/>
-              <line x1="300" y1="250" x2="300" y2="323" stroke="#273142" stroke-width="2.5"/>
+              <line x1="67" y1="175" x2="190" y2="175" stroke="#273142" stroke-width="2.5"/>
+              <line x1="350" y1="175" x2="473" y2="175" stroke="#273142" stroke-width="2.5"/>
+              <line x1="270" y1="22" x2="270" y2="95" stroke="#273142" stroke-width="2.5"/>
+              <line x1="270" y1="255" x2="270" y2="328" stroke="#273142" stroke-width="2.5"/>
 
               <!-- 2. Four Edge-to-Edge Cylindrical Duct Collars -->
-              <!-- Top-Left: Outdoor Air Duct (x=0..105) -->
+              <!-- Top-Left: Outdoor Air Duct -->
               <g>
-                <rect x="0" y="50" width="105" height="65" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/>
-                <line x1="95" y1="50" x2="95" y2="115" stroke="#475569" stroke-width="3"/>
-                <line x1="12" y1="53" x2="12" y2="112" stroke="#38bdf8" stroke-width="1.5" stroke-opacity="0.5"/>
+                <rect x="0" y="50" width="70" height="65" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/>
+                <line x1="60" y1="50" x2="60" y2="115" stroke="#475569" stroke-width="3"/>
+                <line x1="10" y1="53" x2="10" y2="112" stroke="#38bdf8" stroke-width="1.5" stroke-opacity="0.5"/>
               </g>
 
-              <!-- Top-Right: Exhaust Air Duct (x=495..600) -->
+              <!-- Top-Right: Exhaust Air Duct -->
               <g>
-                <rect x="495" y="50" width="105" height="65" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/>
-                <line x1="505" y1="50" x2="505" y2="115" stroke="#475569" stroke-width="3"/>
-                <line x1="588" y1="53" x2="588" y2="112" stroke="#60a5fa" stroke-width="1.5" stroke-opacity="0.5"/>
+                <rect x="470" y="50" width="70" height="65" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/>
+                <line x1="480" y1="50" x2="480" y2="115" stroke="#475569" stroke-width="3"/>
+                <line x1="530" y1="53" x2="530" y2="112" stroke="#60a5fa" stroke-width="1.5" stroke-opacity="0.5"/>
               </g>
 
-              <!-- Bottom-Left: Extract Air Duct (x=0..105) -->
+              <!-- Bottom-Left: Extract Air Duct -->
               <g>
-                <rect x="0" y="235" width="105" height="65" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/>
-                <line x1="95" y1="235" x2="95" y2="300" stroke="#475569" stroke-width="3"/>
-                <line x1="12" y1="238" x2="12" y2="297" stroke="#fbbf24" stroke-width="1.5" stroke-opacity="0.5"/>
+                <rect x="0" y="235" width="70" height="65" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/>
+                <line x1="60" y1="235" x2="60" y2="300" stroke="#475569" stroke-width="3"/>
+                <line x1="10" y1="238" x2="10" y2="297" stroke="#fbbf24" stroke-width="1.5" stroke-opacity="0.5"/>
               </g>
 
-              <!-- Bottom-Right: Supply Air Duct (x=495..600) -->
+              <!-- Bottom-Right: Supply Air Duct -->
               <g>
-                <rect x="495" y="235" width="105" height="65" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/>
-                <line x1="505" y1="235" x2="505" y2="300" stroke="#475569" stroke-width="3"/>
-                <line x1="588" y1="238" x2="588" y2="297" stroke="var(--supply-flow-end, #ff3b30)" stroke-width="1.5" stroke-opacity="0.5"/>
+                <rect x="470" y="235" width="70" height="65" rx="8" fill="url(#ductGrad)" stroke="#334155" stroke-width="1.6"/>
+                <line x1="480" y1="235" x2="480" y2="300" stroke="#475569" stroke-width="3"/>
+                <line x1="530" y1="238" x2="530" y2="297" stroke="var(--supply-flow-end, #ff3b30)" stroke-width="1.5" stroke-opacity="0.5"/>
               </g>
 
               <!-- 3. Broad Volumetric Fluid Airflow Streams -->
               <!-- Outdoor Air Stream (Top-Left -> Center Rotor) -->
-              <path d="M 5,82 C 120,82 180,105 240,155" fill="none" stroke="#06b6d4" stroke-width="32" stroke-opacity="0.09"/>
-              <path d="M 5,82 C 120,82 180,105 240,155" fill="none" stroke="#06b6d4" stroke-width="12" stroke-opacity="0.35"/>
-              <path class="flow-stream flow-outdoor" d="M 5,82 C 120,82 180,105 240,155" stroke-width="3.2" stroke-dasharray="14 8"/>
-              <path class="flow-stream-fast flow-outdoor" d="M 5,86 C 120,86 178,109 238,158" stroke-width="1.5" stroke-dasharray="4 6" stroke-opacity="0.8"/>
+              <path d="M 5,82 C 95,82 155,105 210,155" fill="none" stroke="#06b6d4" stroke-width="32" stroke-opacity="0.09"/>
+              <path d="M 5,82 C 95,82 155,105 210,155" fill="none" stroke="#06b6d4" stroke-width="12" stroke-opacity="0.35"/>
+              <path class="flow-stream flow-outdoor" d="M 5,82 C 95,82 155,105 210,155" stroke-width="3.2" stroke-dasharray="14 8"/>
+              <path class="flow-stream-fast flow-outdoor" d="M 5,86 C 95,86 153,109 208,158" stroke-width="1.5" stroke-dasharray="4 6" stroke-opacity="0.8"/>
 
               <!-- Extract Air Stream (Bottom-Left -> Center Rotor) -->
-              <path d="M 5,268 C 120,268 180,245 240,195" fill="none" stroke="#f59e0b" stroke-width="32" stroke-opacity="0.09"/>
-              <path d="M 5,268 C 120,268 180,245 240,195" fill="none" stroke="#f59e0b" stroke-width="12" stroke-opacity="0.35"/>
-              <path class="flow-stream flow-extract" d="M 5,268 C 120,268 180,245 240,195" stroke-width="3.2" stroke-dasharray="14 8"/>
-              <path class="flow-stream-fast flow-extract" d="M 5,264 C 120,264 178,241 238,192" stroke-width="1.5" stroke-dasharray="4 6" stroke-opacity="0.8"/>
+              <path d="M 5,268 C 95,268 155,245 210,195" fill="none" stroke="#f59e0b" stroke-width="32" stroke-opacity="0.09"/>
+              <path d="M 5,268 C 95,268 155,245 210,195" fill="none" stroke="#f59e0b" stroke-width="12" stroke-opacity="0.35"/>
+              <path class="flow-stream flow-extract" d="M 5,268 C 95,268 155,245 210,195" stroke-width="3.2" stroke-dasharray="14 8"/>
+              <path class="flow-stream-fast flow-extract" d="M 5,264 C 95,264 153,241 208,192" stroke-width="1.5" stroke-dasharray="4 6" stroke-opacity="0.8"/>
 
               <!-- Exhaust Air Stream (Center Rotor -> Top Fan -> Exhaust Duct) -->
-              <path d="M 360,155 C 385,135 405,105 595,82" fill="none" stroke="#3b82f6" stroke-width="32" stroke-opacity="0.09"/>
-              <path d="M 360,155 C 385,135 405,105 595,82" fill="none" stroke="#3b82f6" stroke-width="12" stroke-opacity="0.35"/>
-              <path class="flow-stream flow-exhaust" d="M 360,155 C 385,135 405,105 595,82" stroke-width="3.2" stroke-dasharray="14 8"/>
-              <path class="flow-stream-fast flow-exhaust" d="M 360,151 C 385,131 405,101 595,78" stroke-width="1.5" stroke-dasharray="4 6" stroke-opacity="0.8"/>
+              <path d="M 330,155 C 355,135 375,105 535,82" fill="none" stroke="#3b82f6" stroke-width="32" stroke-opacity="0.09"/>
+              <path d="M 330,155 C 355,135 375,105 535,82" fill="none" stroke="#3b82f6" stroke-width="12" stroke-opacity="0.35"/>
+              <path class="flow-stream flow-exhaust" d="M 330,155 C 355,135 375,105 535,82" stroke-width="3.2" stroke-dasharray="14 8"/>
+              <path class="flow-stream-fast flow-exhaust" d="M 330,151 C 355,131 375,101 535,78" stroke-width="1.5" stroke-dasharray="4 6" stroke-opacity="0.8"/>
 
               <!-- Supply Air Stream (Center Rotor -> Bottom Fan -> Heater -> Supply Duct) -->
-              <path d="M 360,195 C 375,225 390,268 595,268" fill="none" stroke="url(#flowSupplyGrad)" stroke-width="32" stroke-opacity="0.12"/>
-              <path d="M 360,195 C 375,225 390,268 595,268" fill="none" stroke="url(#flowSupplyGrad)" stroke-width="12" stroke-opacity="0.40"/>
-              <path class="flow-stream flow-supply" d="M 360,195 C 375,225 390,268 595,268" stroke-width="3.4" stroke-dasharray="14 8"/>
-              <path class="flow-stream-fast" d="M 360,199 C 375,229 390,272 595,272" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="4 6" stroke-opacity="0.85"/>
+              <path d="M 330,195 C 345,225 360,268 535,268" fill="none" stroke="url(#flowSupplyGrad)" stroke-width="32" stroke-opacity="0.12"/>
+              <path d="M 330,195 C 345,225 360,268 535,268" fill="none" stroke="url(#flowSupplyGrad)" stroke-width="12" stroke-opacity="0.40"/>
+              <path class="flow-stream flow-supply" d="M 330,195 C 345,225 360,268 535,268" stroke-width="3.4" stroke-dasharray="14 8"/>
+              <path class="flow-stream-fast" d="M 330,199 C 345,229 360,272 535,272" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="4 6" stroke-opacity="0.85"/>
 
-              <!-- 4. Top-Right Exhaust Snail Blower (Scaled Up) -->
-              <g transform="translate(415, 105)">
+              <!-- 4. Top-Right Exhaust Snail Blower -->
+              <g transform="translate(385, 105)">
                 <path d="M -36,0 C -36,-24 -18,-40 12,-40 L 85,-40 L 85,-12 L 38,-12 C 42,16 26,40 0,40 C -24,40 -36,20 -36,0 Z" fill="url(#snailGrad)" stroke="#38455c" stroke-width="2"/>
                 <circle cx="0" cy="0" r="30" fill="#131720" stroke="#252d3d" stroke-width="1.5"/>
 
@@ -636,12 +636,12 @@ class SystemairRecuperatorCard extends HTMLElement {
                   <path d="M -4,-4 C -5,-16 7,-20 18,-16 C 13,-11 6,-6 -4,-4 Z" fill="#94a3b8"/>
                 </g>
                 <!-- Clean Angled Pointer Callout to EAF RPM -->
-                <polyline points="20,28 50,45 80,45" fill="none" stroke="#64748b" stroke-width="1.2" stroke-dasharray="2 2"/>
-                <text x="84" y="48" fill="#94a3b8" font-size="11" font-weight="500" id="extractRpmSvgText">EAF: 1140 RPM</text>
+                <polyline points="20,28 45,45 70,45" fill="none" stroke="#64748b" stroke-width="1.2" stroke-dasharray="2 2"/>
+                <text x="74" y="48" fill="#94a3b8" font-size="11" font-weight="500" id="extractRpmSvgText">EAF: 1140 RPM</text>
               </g>
 
-              <!-- 5. Bottom-Right Supply Snail Blower (Scaled Up) -->
-              <g transform="translate(385, 255)">
+              <!-- 5. Bottom-Right Supply Snail Blower -->
+              <g transform="translate(355, 255)">
                 <path d="M -36,0 C -36,-24 -18,-40 12,-40 L 52,-40 L 52,-12 L 38,-12 C 42,16 26,40 0,40 C -24,40 -36,20 -36,0 Z" fill="url(#snailGrad)" stroke="#38455c" stroke-width="2"/>
                 <circle cx="0" cy="0" r="30" fill="#131720" stroke="#252d3d" stroke-width="1.5"/>
 
@@ -658,50 +658,48 @@ class SystemairRecuperatorCard extends HTMLElement {
                   <path d="M -4,-4 C -5,-16 7,-20 18,-16 C 13,-11 6,-6 -4,-4 Z" fill="#94a3b8"/>
                 </g>
                 <!-- Clean Pointer Callout to SAF RPM -->
-                <polyline points="0,40 0,55 -50,55" fill="none" stroke="#64748b" stroke-width="1.2" stroke-dasharray="2 2"/>
-                <text x="-54" y="58" text-anchor="end" fill="#94a3b8" font-size="11" font-weight="500" id="supplyRpmSvgText">SAF: 1200 RPM</text>
+                <polyline points="0,40 0,55 -45,55" fill="none" stroke="#64748b" stroke-width="1.2" stroke-dasharray="2 2"/>
+                <text x="-49" y="58" text-anchor="end" fill="#94a3b8" font-size="11" font-weight="500" id="supplyRpmSvgText">SAF: 1200 RPM</text>
               </g>
 
-              <!-- 6. Electric Reheater Serpentine Coil (Scaled Up Height: 54px) -->
+              <!-- 6. Electric Reheater Serpentine Coil (Refined & Compact: 30x32px, 4 loops) -->
               <g id="heaterGroup">
-                <!-- Warm Glow Aura Background -->
-                <ellipse id="heaterAura" cx="485" cy="258" rx="42" ry="30" fill="url(#heaterRadialGlow)" opacity="0"/>
-                <!-- 5-loop Serpentine Coil Element (Taller, Prominent) -->
+                <!-- Warm Glow Aura Background (Compact) -->
+                <ellipse id="heaterAura" cx="431" cy="255" rx="20" ry="17" fill="url(#heaterRadialGlow)" opacity="0"/>
+                <!-- 4-loop Serpentine Coil Element (Compact, Refined) -->
                 <path id="heaterCoil" class="heater-coil"
-                  d="M 452,236 
-                     L 452,280 A 6.5,6.5 0 0,0 465,280 
-                     L 465,236 A 6.5,6.5 0 0,1 478,236 
-                     L 478,280 A 6.5,6.5 0 0,0 491,280 
-                     L 491,236 A 6.5,6.5 0 0,1 504,236 
-                     L 504,280 A 6.5,6.5 0 0,0 517,280 
-                     L 517,236" />
+                  d="M 416,239 
+                     L 416,271 A 5,5 0 0,0 426,271 
+                     L 426,239 A 5,5 0 0,1 436,239 
+                     L 436,271 A 5,5 0 0,0 446,271 
+                     L 446,239" />
               </g>
 
-              <!-- 7. Rotary Heat Exchanger (Scaled Up: r=75, Diameter 150px) -->
+              <!-- 7. Rotary Heat Exchanger (Scaled Up: r=80, Diameter 160px) -->
               <g id="rotorGroup">
                 <!-- Outer Bezel -->
-                <circle cx="300" cy="175" r="75" fill="#111620" stroke="#252f40" stroke-width="3.5"/>
-                <!-- Multi-color Gradient Recovery Gauge Arc (Rotated -90deg) -->
-                <circle id="rotorGaugeArc" cx="300" cy="175" r="68" fill="none" stroke="url(#gaugeGrad)" stroke-width="5" stroke-dasharray="371 56" stroke-linecap="round" style="transition: stroke-dasharray 0.8s ease-out; transform: rotate(-90deg); transform-origin: 300px 175px;"/>
+                <circle cx="270" cy="175" r="80" fill="#111620" stroke="#252f40" stroke-width="3.5"/>
+                <!-- Multi-color Gradient Recovery Gauge Arc (Rotated -90deg, transform-origin at 270px 175px) -->
+                <circle id="rotorGaugeArc" cx="270" cy="175" r="72" fill="none" stroke="url(#gaugeGrad)" stroke-width="5" stroke-dasharray="390 62" stroke-linecap="round" style="transition: stroke-dasharray 0.8s ease-out; transform: rotate(-90deg); transform-origin: 270px 175px;"/>
 
                 <!-- Rotating Radial Vanes Matrix -->
                 <g id="rotorWheel" class="rotor-spin-group">
-                  <line x1="300" y1="108" x2="300" y2="242" stroke="#334155" stroke-width="1.2"/>
-                  <line x1="233" y1="175" x2="367" y2="175" stroke="#334155" stroke-width="1.2"/>
-                  <line x1="253" y1="128" x2="347" y2="222" stroke="#334155" stroke-width="1.2"/>
-                  <line x1="253" y1="222" x2="347" y2="128" stroke="#334155" stroke-width="1.2"/>
-                  <line x1="274" y1="112" x2="326" y2="238" stroke="#334155" stroke-width="1"/>
-                  <line x1="326" y1="112" x2="274" y2="238" stroke="#334155" stroke-width="1"/>
-                  <line x1="237" y1="149" x2="363" y2="201" stroke="#334155" stroke-width="1"/>
-                  <line x1="237" y1="201" x2="363" y2="149" stroke="#334155" stroke-width="1"/>
+                  <line x1="270" y1="103" x2="270" y2="247" stroke="#334155" stroke-width="1.2"/>
+                  <line x1="198" y1="175" x2="342" y2="175" stroke="#334155" stroke-width="1.2"/>
+                  <line x1="219" y1="124" x2="321" y2="226" stroke="#334155" stroke-width="1.2"/>
+                  <line x1="219" y1="226" x2="321" y2="124" stroke="#334155" stroke-width="1.2"/>
+                  <line x1="242" y1="107" x2="298" y2="243" stroke="#334155" stroke-width="1"/>
+                  <line x1="298" y1="107" x2="242" y2="243" stroke="#334155" stroke-width="1"/>
+                  <line x1="202" y1="147" x2="338" y2="203" stroke="#334155" stroke-width="1"/>
+                  <line x1="202" y1="203" x2="338" y2="147" stroke="#334155" stroke-width="1"/>
                   <!-- Concentric Aluminum Matrix Ribs -->
-                  <circle cx="300" cy="175" r="56" fill="none" stroke="#1e293b" stroke-width="14" stroke-dasharray="2 3"/>
+                  <circle cx="270" cy="175" r="60" fill="none" stroke="#1e293b" stroke-width="15" stroke-dasharray="2 3"/>
                 </g>
 
                 <!-- Central Digital Efficiency Dial -->
-                <circle cx="300" cy="175" r="44" fill="#141924" stroke="rgba(255, 255, 255, 0.12)" stroke-width="1.5"/>
-                <text x="300" y="177" text-anchor="middle" fill="#ffffff" font-size="24" font-weight="800" id="rotorPctText">87%</text>
-                <text x="300" y="194" text-anchor="middle" fill="#94a3b8" font-size="9" font-weight="600" letter-spacing="1.2">RECOVERY</text>
+                <circle cx="270" cy="175" r="48" fill="#141924" stroke="rgba(255, 255, 255, 0.12)" stroke-width="1.5"/>
+                <text x="270" y="177" text-anchor="middle" fill="#ffffff" font-size="26" font-weight="800" id="rotorPctText">87%</text>
+                <text x="270" y="195" text-anchor="middle" fill="#94a3b8" font-size="9.5" font-weight="600" letter-spacing="1.2">RECOVERY</text>
               </g>
 
               <!-- 8. Clean Integrated Sensor Typography Inside Collars -->
@@ -714,9 +712,9 @@ class SystemairRecuperatorCard extends HTMLElement {
 
               <!-- Top-Right: Exhaust Air -->
               <g>
-                <text x="588" y="44" text-anchor="end" fill="#94a3b8" font-size="12" font-weight="600">Exhaust Air</text>
-                <text x="588" y="70" text-anchor="end" class="temp-exhaust" font-size="23" font-weight="800" id="exhaustTempSvg">3.8°C</text>
-                <text x="588" y="94" text-anchor="end" fill="#64748b" font-size="11" font-weight="500">Discharge</text>
+                <text x="528" y="44" text-anchor="end" fill="#94a3b8" font-size="12" font-weight="600">Exhaust Air</text>
+                <text x="528" y="70" text-anchor="end" class="temp-exhaust" font-size="23" font-weight="800" id="exhaustTempSvg">3.8°C</text>
+                <text x="528" y="94" text-anchor="end" fill="#64748b" font-size="11" font-weight="500">Discharge</text>
               </g>
 
               <!-- Bottom-Left: Extract Air -->
@@ -727,11 +725,11 @@ class SystemairRecuperatorCard extends HTMLElement {
                 <text x="12" y="276" fill="#94a3b8" font-size="11" font-weight="500" id="extractCo2Svg">580 ppm CO₂</text>
               </g>
 
-              <!-- Bottom-Right: Supply Air -->
+              <!-- Bottom-Right: Supply Air (Right-Aligned, Zero Overlap with Heater) -->
               <g>
-                <text x="588" y="214" text-anchor="end" fill="#94a3b8" font-size="12" font-weight="600">Supply Air</text>
-                <text x="588" y="240" text-anchor="end" class="temp-supply" font-size="23" font-weight="800" id="supplyTempSvg">20.5°C</text>
-                <text x="588" y="262" text-anchor="end" fill="#94a3b8" font-size="11" font-weight="500" id="supplyFlowSvg">160 m³/h</text>
+                <text x="528" y="214" text-anchor="end" fill="#94a3b8" font-size="12" font-weight="600">Supply Air</text>
+                <text x="528" y="240" text-anchor="end" class="temp-supply" font-size="23" font-weight="800" id="supplyTempSvg">20.5°C</text>
+                <text x="528" y="262" text-anchor="end" fill="#94a3b8" font-size="11" font-weight="500" id="supplyFlowSvg">160 m³/h</text>
               </g>
             </svg>
           </div>
@@ -825,88 +823,74 @@ class SystemairRecuperatorCard extends HTMLElement {
     let targetTemp = 21.0;
     if (this._optimistic.targetTemp !== undefined) {
       targetTemp = this._optimistic.targetTemp;
-    } else if (climate && climate.attributes) {
-      const a = climate.attributes;
-      const t = a.temperature ?? a.target_temp_high ?? a.target_temperature;
-      if (t !== undefined && t !== null && !isNaN(parseFloat(t))) {
-        targetTemp = parseFloat(t);
-      }
+    } else if (climate && climate.attributes && climate.attributes.temperature !== undefined) {
+      targetTemp = parseFloat(climate.attributes.temperature) || 21.0;
     }
     const tempValElem = root.getElementById('tempVal');
     if (tempValElem) tempValElem.textContent = `${targetTemp.toFixed(1)}°C`;
 
-    // 2. Preset Mode
-    let currentMode = 'auto';
-    if (this._optimistic.preset_mode !== undefined) {
-      currentMode = this._optimistic.preset_mode;
-    } else if (climate && climate.attributes && climate.attributes.preset_mode) {
-      currentMode = climate.attributes.preset_mode.toLowerCase();
+    // Mode Badge
+    const presetMode = climate && climate.attributes ? climate.attributes.preset_mode : null;
+    const hvacAction = climate && climate.attributes ? climate.attributes.hvac_action : null;
+    const currentMode = this._optimistic.preset || presetMode || hvacAction || (climate ? climate.state : 'Auto');
+    const badge = root.getElementById('modeBadge');
+    if (badge) {
+      const displayMode = (currentMode || 'Auto').charAt(0).toUpperCase() + (currentMode || 'Auto').slice(1);
+      badge.textContent = displayMode;
     }
-    const modeBadge = root.getElementById('modeBadge');
-    if (modeBadge) {
-      modeBadge.textContent = currentMode.charAt(0).toUpperCase() + currentMode.slice(1);
-    }
-    root.querySelectorAll('#presetsRow .preset-chip').forEach(chip => {
-      const m = chip.getAttribute('data-mode');
-      chip.classList.toggle('active', m === currentMode);
-    });
 
-    // 3. Temperatures
+    // 2. Discover and Populate Temperatures
     const outdoorId = this._config.outdoor_temp_entity || this._findEntity([
       'sensor.systemair_outdoor_air_temperature',
       /outdoor.*temp/i,
-      /outdoor_air_temp/i
+      /fresh.*temp/i
     ]);
     const supplyId = this._config.supply_temp_entity || this._findEntity([
       'sensor.systemair_supply_air_temperature',
-      /supply.*temp/i,
-      /supply_air_temp/i
+      /supply.*temp/i
     ]);
     const extractId = this._config.extract_temp_entity || this._findEntity([
       'sensor.systemair_extract_air_temperature',
-      /extract.*temp/i,
-      /extract_air_temp/i
+      /extract.*temp/i
     ]);
     const exhaustId = this._config.exhaust_temp_entity || this._findEntity([
       'sensor.systemair_exhaust_air_temperature',
-      /exhaust.*temp/i,
-      /exhaust_air_temp/i
+      /exhaust.*temp/i
     ]);
 
-    const outdoorVal = this._getNum(outdoorId, null);
-    const supplyVal  = this._getNum(supplyId, null);
-    const extractVal = this._getNum(extractId, null);
-    const exhaustVal = this._getNum(exhaustId, null);
+    const outdoorVal = this._getNum(outdoorId, -2.5);
+    const supplyVal  = this._getNum(supplyId, 20.5);
+    const extractVal = this._getNum(extractId, 22.0);
+    const exhaustVal = this._getNum(exhaustId, 3.8);
 
     const outElem = root.getElementById('outdoorTempSvg');
-    if (outElem) outElem.textContent = outdoorVal !== null ? `${outdoorVal.toFixed(1)}°C` : '--.-°C';
+    if (outElem) outElem.textContent = outdoorVal !== null ? `${outdoorVal.toFixed(1)}°C` : '--';
 
     const supElem = root.getElementById('supplyTempSvg');
-    if (supElem) supElem.textContent = supplyVal !== null ? `${supplyVal.toFixed(1)}°C` : '20.0°C';
+    if (supElem) supElem.textContent = supplyVal !== null ? `${supplyVal.toFixed(1)}°C` : '--';
 
     const extElem = root.getElementById('extractTempSvg');
-    if (extElem) extElem.textContent = extractVal !== null ? `${extractVal.toFixed(1)}°C` : '21.6°C';
+    if (extElem) extElem.textContent = extractVal !== null ? `${extractVal.toFixed(1)}°C` : '--';
 
     const exhElem = root.getElementById('exhaustTempSvg');
-    if (exhElem) exhElem.textContent = exhaustVal !== null ? `${exhaustVal.toFixed(1)}°C` : '18.7°C';
+    if (exhElem) exhElem.textContent = exhaustVal !== null ? `${exhaustVal.toFixed(1)}°C` : '--';
 
-    // Dynamic Supply Air Color Gradient (transitions toward red with temperature)
-    const effectiveSupplyTemp = supplyVal !== null ? supplyVal : 20.0;
-    const { start, end, glow } = this._getSupplyColors(effectiveSupplyTemp);
-    this.style.setProperty('--supply-flow-start', start);
-    this.style.setProperty('--supply-flow-end', end);
-    this.style.setProperty('--supply-flow-glow', glow);
+    // 3. Dynamic Supply Air Color Gradient (Warmer red into the house)
+    const colors = this._getSupplyColors(supplyVal);
+    const host = this;
+    host.style.setProperty('--supply-flow-start', colors.start);
+    host.style.setProperty('--supply-flow-end', colors.end);
+    host.style.setProperty('--supply-flow-glow', colors.glow);
 
-    // 4. Recovery Efficiency (%) & Dynamic Gauge Arc
+    // 4. Heat Recovery Efficiency Calculation & Gauge
     const effId = this._config.efficiency_entity || this._findEntity([
-      'sensor.systemair_heat_exchanger_efficiency',
+      'sensor.systemair_heat_recovery_efficiency',
+      /heat_recovery_efficiency/i,
       /efficiency/i,
       /recovery/i
     ]);
     let effVal = this._getNum(effId, null);
-
-    // Mathematical Fallback for Efficiency: (T_supply - T_outdoor) / (T_extract - T_outdoor) * 100%
-    if (effVal === null && outdoorVal !== null && supplyVal !== null && extractVal !== null) {
+    if (effVal === null && outdoorVal !== null && extractVal !== null && supplyVal !== null) {
       const deltaT = extractVal - outdoorVal;
       if (Math.abs(deltaT) > 1.5) {
         const calculated = ((supplyVal - outdoorVal) / deltaT) * 100;
@@ -917,10 +901,10 @@ class SystemairRecuperatorCard extends HTMLElement {
     const effElem = root.getElementById('rotorPctText');
     if (effElem) effElem.textContent = `${finalEff}%`;
 
-    // Dynamic SVG Gauge Arc Length (Circumference for r=68 is 2 * PI * 68 = 427.25)
+    // Dynamic SVG Gauge Arc Length (Circumference for r=72 is 2 * PI * 72 = 452.39)
     const gaugeArc = root.getElementById('rotorGaugeArc');
     if (gaugeArc) {
-      const totalCircumference = 427.25;
+      const totalCircumference = 452.39;
       const filled = (Math.max(5, Math.min(100, finalEff)) / 100) * totalCircumference;
       const blank = totalCircumference - filled;
       gaugeArc.setAttribute('stroke-dasharray', `${filled.toFixed(1)} ${blank.toFixed(1)}`);
@@ -941,50 +925,51 @@ class SystemairRecuperatorCard extends HTMLElement {
     const eafRpm = this._getNum(eafRpmId, 1140);
 
     const safElem = root.getElementById('supplyRpmSvgText');
-    if (safElem) safElem.textContent = `SAF: ${safRpm} RPM`;
-    const eafElem = root.getElementById('extractRpmSvgText');
-    if (eafElem) eafElem.textContent = `EAF: ${eafRpm} RPM`;
+    if (safElem) safElem.textContent = `SAF: ${Math.round(safRpm)} RPM`;
 
-    // Dynamic Spin Animation Speeds for Impellers
+    const eafElem = root.getElementById('extractRpmSvgText');
+    if (eafElem) eafElem.textContent = `EAF: ${Math.round(eafRpm)} RPM`;
+
+    // Speed of Fan Spin Animations
     const safSpinner = root.getElementById('supplyFanSpinner');
     if (safSpinner) {
-      const dur = safRpm > 100 ? Math.max(0.3, Math.min(2.5, 1200 / safRpm)) : 0;
+      const dur = safRpm > 100 ? Math.max(0.3, Math.min(3.0, 1800 / safRpm)) : 0;
       safSpinner.style.animationDuration = `${dur.toFixed(2)}s`;
-      safSpinner.style.animationPlayState = dur > 0 ? 'running' : 'paused';
+      safSpinner.style.animationPlayState = safRpm > 100 ? 'running' : 'paused';
     }
     const eafSpinner = root.getElementById('extractFanSpinner');
     if (eafSpinner) {
-      const dur = eafRpm > 100 ? Math.max(0.3, Math.min(2.5, 1200 / eafRpm)) : 0;
+      const dur = eafRpm > 100 ? Math.max(0.3, Math.min(3.0, 1800 / eafRpm)) : 0;
       eafSpinner.style.animationDuration = `${dur.toFixed(2)}s`;
-      eafSpinner.style.animationPlayState = dur > 0 ? 'running' : 'paused';
+      eafSpinner.style.animationPlayState = eafRpm > 100 ? 'running' : 'paused';
     }
 
-    // 6. Secondary Sensors (RH, CO2, Airflow Volume)
+    // 6. Airflow, Humidity, CO2
+    const flowId = this._config.airflow_entity || this._findEntity([
+      'sensor.systemair_supply_fan_airflow',
+      /supply.*airflow/i,
+      /airflow/i
+    ]);
+    const flowVal = this._getNum(flowId, 160);
+    const flowElem = root.getElementById('supplyFlowSvg');
+    if (flowElem) flowElem.textContent = `${Math.round(flowVal)} m³/h`;
+
     const rhId = this._config.rh_entity || this._findEntity([
-      'sensor.systemair_relative_humidity',
-      /humidity/i,
-      /extract.*rh/i
+      'sensor.systemair_extract_air_humidity',
+      /extract.*humidity/i,
+      /humidity/i
     ]);
     const rhVal = this._getNum(rhId, 48);
     const rhElem = root.getElementById('extractRhSvg');
     if (rhElem) rhElem.textContent = `${Math.round(rhVal)}% RH`;
 
     const co2Id = this._config.co2_entity || this._findEntity([
-      'sensor.systemair_co2_level',
+      'sensor.systemair_co2',
       /co2/i
     ]);
-    const co2Val = this._getNum(co2Id, 527);
+    const co2Val = this._getNum(co2Id, 580);
     const co2Elem = root.getElementById('extractCo2Svg');
     if (co2Elem) co2Elem.textContent = `${Math.round(co2Val)} ppm CO₂`;
-
-    const flowId = this._config.airflow_entity || this._findEntity([
-      'sensor.systemair_supply_air_flow',
-      /air.*flow/i,
-      /volume/i
-    ]);
-    const flowVal = this._getNum(flowId, 84);
-    const flowElem = root.getElementById('supplyFlowSvg');
-    if (flowElem) flowElem.textContent = `${Math.round(flowVal)} m³/h`;
 
     // 7. Heater Active State & Coil Glow
     const heaterId = this._config.heater_entity || this._findEntity([
@@ -1015,103 +1000,96 @@ class SystemairRecuperatorCard extends HTMLElement {
       'switch.eco_mode',
       /eco/i
     ]);
-    let ecoActive = this._optimistic.eco !== undefined ? this._optimistic.eco : (ecoId && this._hass.states[ecoId]?.state === 'on');
+    let ecoActive = this._optimistic.eco !== undefined ? this._optimistic.eco : (ecoId && this._hass.states[ecoId] && this._hass.states[ecoId].state === 'on');
     const ecoSwitch = root.getElementById('ecoSwitch');
-    if (ecoSwitch) ecoSwitch.classList.toggle('on', !!ecoActive);
+    if (ecoSwitch) ecoSwitch.classList.toggle('on', ecoActive);
 
     const freeCoolId = this._config.free_cooling_entity || this._findEntity([
       'switch.systemair_free_cooling',
       'switch.free_cooling',
       /free.*cool/i
     ]);
-    let freeCoolActive = this._optimistic.free_cooling !== undefined ? this._optimistic.free_cooling : (freeCoolId && this._hass.states[freeCoolId]?.state === 'on');
+    let freeCoolActive = this._optimistic.free_cooling !== undefined ? this._optimistic.free_cooling : (freeCoolId && this._hass.states[freeCoolId] && this._hass.states[freeCoolId].state === 'on');
     const freeCoolSwitch = root.getElementById('freeCoolingSwitch');
-    if (freeCoolSwitch) freeCoolSwitch.classList.toggle('on', !!freeCoolActive);
+    if (freeCoolSwitch) freeCoolSwitch.classList.toggle('on', freeCoolActive);
 
-    // 9. Active Fan Speed Pill
-    let activeSpeed = null;
-    if (this._optimistic.fanSpeed !== undefined) {
-      activeSpeed = this._optimistic.fanSpeed;
-    } else if (climate && climate.attributes && climate.attributes.fan_mode) {
-      const fm = String(climate.attributes.fan_mode).toLowerCase();
-      if (['1', '2', '3', '4', '5', 'boost'].includes(fm)) {
-        activeSpeed = fm;
-      } else if (fm === 'low') activeSpeed = '1';
-      else if (fm === 'medium') activeSpeed = '3';
-      else if (fm === 'high') activeSpeed = 'boost';
+    // 9. Update Active Preset Chip
+    const activePreset = (this._optimistic.preset || presetMode || '').toLowerCase();
+    root.querySelectorAll('#presetsRow .preset-chip').forEach(chip => {
+      const mode = chip.getAttribute('data-mode').toLowerCase();
+      chip.classList.toggle('active', mode === activePreset);
+    });
+
+    // 10. Update Active Fan Speed Pill
+    let fanSpeed = this._optimistic.fan_speed || (climate && climate.attributes ? climate.attributes.fan_mode : null);
+    if (!fanSpeed && safRpm) {
+      // Map RPM into 1..5 if fan_mode is missing
+      if (safRpm < 600) fanSpeed = '1';
+      else if (safRpm < 950) fanSpeed = '2';
+      else if (safRpm < 1300) fanSpeed = '3';
+      else if (safRpm < 1650) fanSpeed = '4';
+      else fanSpeed = '5';
     }
-    // Fallback: estimate from RPM if running in auto
-    if (!activeSpeed && safRpm > 0) {
-      if (safRpm < 600) activeSpeed = '1';
-      else if (safRpm < 950) activeSpeed = '2';
-      else if (safRpm < 1350) activeSpeed = '3';
-      else if (safRpm < 1700) activeSpeed = '4';
-      else activeSpeed = 'boost';
-    }
-    root.querySelectorAll('#fanPills .pill').forEach(btn => {
-      const sp = btn.getAttribute('data-speed');
-      btn.classList.toggle('active', sp === activeSpeed);
+    const activeSpeed = String(fanSpeed || '3').toLowerCase();
+    root.querySelectorAll('#fanPills .pill').forEach(pill => {
+      const sp = pill.getAttribute('data-speed').toLowerCase();
+      pill.classList.toggle('active', sp === activeSpeed);
     });
   }
 
-  // --- UI Action Callbacks ---
+  // --- User Interaction Handlers with Instant Optimistic UI ---
   _changeTargetTemp(delta) {
     if (!this._hass) return;
     const climateId = this._config.climate_entity || this._findEntity([/^climate\.systemair/]);
     if (!climateId) return;
 
     const climate = this._hass.states[climateId];
-    let curTemp = 21.0;
-    if (this._optimistic.targetTemp !== undefined) {
-      curTemp = this._optimistic.targetTemp;
-    } else if (climate && climate.attributes && climate.attributes.temperature) {
-      curTemp = parseFloat(climate.attributes.temperature);
-    }
+    const current = this._optimistic.targetTemp !== undefined
+      ? this._optimistic.targetTemp
+      : (climate && climate.attributes ? parseFloat(climate.attributes.temperature) || 21.0 : 21.0);
 
-    const nextTemp = Math.max(12, Math.min(30, Math.round((curTemp + delta) * 2) / 2));
-    this._optimistic.targetTemp = nextTemp;
+    const next = Math.max(12.0, Math.min(30.0, Math.round((current + delta) * 2) / 2));
+    this._optimistic.targetTemp = next;
     this._updateValues();
 
     if (this._stepTimer) clearTimeout(this._stepTimer);
     this._stepTimer = setTimeout(() => {
       this._hass.callService('climate', 'set_temperature', {
         entity_id: climateId,
-        temperature: nextTemp,
+        temperature: next,
       }).then(() => {
-        setTimeout(() => { delete this._optimistic.targetTemp; }, 3000);
-      }).catch(err => console.warn('Temperature set failed', err));
-    }, 400);
+        setTimeout(() => { delete this._optimistic.targetTemp; }, 4000);
+      }).catch(err => console.warn('Temp set failed', err));
+    }, 450);
   }
 
   _setFanSpeed(speed) {
     if (!this._hass) return;
-    this._optimistic.fanSpeed = speed;
+    const climateId = this._config.climate_entity || this._findEntity([/^climate\.systemair/]);
+    this._optimistic.fan_speed = speed;
     this._updateValues();
 
-    const climateId = this._config.climate_entity || this._findEntity([/^climate\.systemair/]);
     if (!climateId) return;
-
     this._hass.callService('climate', 'set_fan_mode', {
       entity_id: climateId,
       fan_mode: speed,
     }).then(() => {
-      setTimeout(() => { delete this._optimistic.fanSpeed; }, 3500);
-    }).catch(err => console.warn('Fan speed set failed', err));
+      setTimeout(() => { delete this._optimistic.fan_speed; }, 4000);
+    }).catch(err => console.warn('Fan mode set failed', err));
   }
 
-  _setPresetMode(mode) {
+  _setPresetMode(preset) {
     if (!this._hass) return;
-    this._optimistic.preset_mode = mode;
+    const climateId = this._config.climate_entity || this._findEntity([/^climate\.systemair/]);
+    this._optimistic.preset = preset;
     this._updateValues();
 
-    const climateId = this._config.climate_entity || this._findEntity([/^climate\.systemair/]);
     if (!climateId) return;
-
     this._hass.callService('climate', 'set_preset_mode', {
       entity_id: climateId,
-      preset_mode: mode,
+      preset_mode: preset,
     }).then(() => {
-      setTimeout(() => { delete this._optimistic.preset_mode; }, 3500);
+      setTimeout(() => { delete this._optimistic.preset; }, 4000);
     }).catch(err => console.warn('Preset set failed', err));
   }
 
