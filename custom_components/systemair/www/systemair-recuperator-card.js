@@ -3,8 +3,8 @@
  * Custom Home Assistant card for Systemair SAVE ventilation units with heat recovery.
  * Fully matching visual mockup aesthetics: edge-to-edge large schematic, fluid airflows,
  * realistic snail blowers, dynamic supply air thermal gradient, active serpentine reheater,
- * bold high-visibility typography, and responsive iOS-style controls.
- * Version: 1.0.31
+ * bold high-visibility typography, native climate preset switching, and responsive controls.
+ * Version: 1.0.32
  */
 
 class SystemairRecuperatorCard extends HTMLElement {
@@ -19,7 +19,7 @@ class SystemairRecuperatorCard extends HTMLElement {
     if (!config) throw new Error('Invalid configuration');
     this._config = {
       title: 'Systemair SAVE',
-      climate_entity: 'climate.systemair_climate',
+      climate_entity: null,
       unit_type: 'rotary',
       show_co2: true,
       show_humidity: true,
@@ -45,7 +45,6 @@ class SystemairRecuperatorCard extends HTMLElement {
   static getStubConfig() {
     return {
       title: 'Systemair SAVE',
-      climate_entity: 'climate.systemair_climate',
       unit_type: 'rotary',
     };
   }
@@ -62,6 +61,17 @@ class SystemairRecuperatorCard extends HTMLElement {
       }
     }
     return null;
+  }
+
+  _getClimateId() {
+    if (this._config.climate_entity && this._hass && this._hass.states[this._config.climate_entity]) {
+      return this._config.climate_entity;
+    }
+    return this._findEntity([
+      /^climate\.systemair_vtr/,
+      /^climate\.systemair/,
+      /^climate\./
+    ]);
   }
 
   _getState(entityId, fallback = '--') {
@@ -726,11 +736,12 @@ class SystemairRecuperatorCard extends HTMLElement {
                 <text x="105" y="51" class="sensor-tag">Fresh</text>
               </g>
 
-              <!-- Top-Right: Exhaust Air (Placed Cleanly Above Duct Pipe) -->
+              <!-- Top-Right: Exhaust Air (Placed Cleanly Above Duct Pipe with Airflow Volume) -->
               <g>
                 <text x="528" y="28" text-anchor="end" class="channel-title">Exhaust Air</text>
-                <text x="528" y="52" text-anchor="end" class="temp-exhaust" id="exhaustTempSvg">3.8°C</text>
-                <text x="435" y="51" text-anchor="end" class="sensor-tag">Discharge</text>
+                <text x="528" y="52" text-anchor="end" class="temp-exhaust" id="exhaustTempSvg">17.8°C</text>
+                <text x="528" y="74" text-anchor="end" class="sensor-sub" id="exhaustFlowSvg">78 m³/h</text>
+                <text x="430" y="51" text-anchor="end" class="sensor-tag">Discharge</text>
               </g>
 
               <!-- Bottom-Left: Extract Air (Temp Above Duct, Humidity/CO2 Below Duct) -->
@@ -814,7 +825,7 @@ class SystemairRecuperatorCard extends HTMLElement {
       });
     });
 
-    // Preset Chips with Immediate Optimistic Feedback
+    // Preset Chips with Immediate Optimistic Feedback (Strictly via Climate)
     root.querySelectorAll('#presetsRow .preset-chip').forEach(chip => {
       chip.addEventListener('click', (e) => {
         const mode = e.currentTarget.getAttribute('data-mode');
@@ -832,8 +843,8 @@ class SystemairRecuperatorCard extends HTMLElement {
     if (!this._hass || !this.shadowRoot) return;
     const root = this.shadowRoot;
 
-    // 1. Climate Entity & Target Temp
-    const climateId = this._config.climate_entity || this._findEntity([/^climate\.systemair/]);
+    // 1. Discover Real Climate Entity & Target Temp
+    const climateId = this._getClimateId();
     const climate = climateId ? this._hass.states[climateId] : null;
 
     let targetTemp = 21.0;
@@ -857,19 +868,23 @@ class SystemairRecuperatorCard extends HTMLElement {
 
     // 2. Discover and Populate Temperatures
     const outdoorId = this._config.outdoor_temp_entity || this._findEntity([
+      'sensor.systemair_vtr_300_b_r_outside_air_temperature',
       'sensor.systemair_outdoor_air_temperature',
-      /outdoor.*temp/i,
+      /out(door|side).*temp/i,
       /fresh.*temp/i
     ]);
     const supplyId = this._config.supply_temp_entity || this._findEntity([
+      'sensor.systemair_vtr_300_b_r_supply_air_temperature',
       'sensor.systemair_supply_air_temperature',
       /supply.*temp/i
     ]);
     const extractId = this._config.extract_temp_entity || this._findEntity([
+      'sensor.systemair_vtr_300_b_r_extract_air_temperature',
       'sensor.systemair_extract_air_temperature',
       /extract.*temp/i
     ]);
     const exhaustId = this._config.exhaust_temp_entity || this._findEntity([
+      'sensor.systemair_vtr_300_b_r_exhaust_air_temperature',
       'sensor.systemair_exhaust_air_temperature',
       /exhaust.*temp/i
     ]);
@@ -928,11 +943,13 @@ class SystemairRecuperatorCard extends HTMLElement {
 
     // 5. Fans RPM and Speeds
     const safRpmId = this._config.saf_rpm_entity || this._findEntity([
+      'sensor.systemair_vtr_300_b_r_supply_air_fan_rpm',
       'sensor.systemair_supply_air_fan_rpm',
       /supply.*fan.*rpm/i,
       /saf.*rpm/i
     ]);
     const eafRpmId = this._config.eaf_rpm_entity || this._findEntity([
+      'sensor.systemair_vtr_300_b_r_extract_air_fan_rpm',
       'sensor.systemair_extract_air_fan_rpm',
       /extract.*fan.*rpm/i,
       /eaf.*rpm/i
@@ -960,17 +977,29 @@ class SystemairRecuperatorCard extends HTMLElement {
       eafSpinner.style.animationPlayState = eafRpm > 100 ? 'running' : 'paused';
     }
 
-    // 6. Airflow, Humidity, CO2
-    const flowId = this._config.airflow_entity || this._findEntity([
-      'sensor.systemair_supply_fan_airflow',
+    // 6. Airflows: Supply Airflow & Exhaust Airflow
+    const supplyFlowId = this._config.supply_airflow_entity || this._config.airflow_entity || this._findEntity([
+      'sensor.systemair_supply_airflow',
+      'sensor.systemair_vtr_300_b_r_supply_fan_airflow',
       /supply.*airflow/i,
       /airflow/i
     ]);
-    const flowVal = this._getNum(flowId, 160);
-    const flowElem = root.getElementById('supplyFlowSvg');
-    if (flowElem) flowElem.textContent = `${Math.round(flowVal)} m³/h`;
+    const supplyFlowVal = this._getNum(supplyFlowId, 81);
+    const supplyFlowElem = root.getElementById('supplyFlowSvg');
+    if (supplyFlowElem) supplyFlowElem.textContent = `${Math.round(supplyFlowVal)} m³/h`;
+
+    const exhaustFlowId = this._config.exhaust_airflow_entity || this._findEntity([
+      'sensor.systemair_exhaust_airflow',
+      'sensor.systemair_vtr_300_b_r_extract_fan_airflow',
+      /exhaust.*airflow/i,
+      /exhaust.*flow/i,
+    ]);
+    const exhaustFlowVal = this._getNum(exhaustFlowId, 78);
+    const exhaustFlowElem = root.getElementById('exhaustFlowSvg');
+    if (exhaustFlowElem) exhaustFlowElem.textContent = `${Math.round(exhaustFlowVal)} m³/h`;
 
     const rhId = this._config.rh_entity || this._findEntity([
+      'sensor.systemair_vtr_300_b_r_extract_air_relative_humidity',
       'sensor.systemair_extract_air_humidity',
       /extract.*humidity/i,
       /humidity/i
@@ -980,6 +1009,7 @@ class SystemairRecuperatorCard extends HTMLElement {
     if (rhElem) rhElem.textContent = `${Math.round(rhVal)}% RH`;
 
     const co2Id = this._config.co2_entity || this._findEntity([
+      'sensor.systemair_vtr_300_b_r_co2_level',
       'sensor.systemair_co2',
       /co2/i
     ]);
@@ -987,31 +1017,57 @@ class SystemairRecuperatorCard extends HTMLElement {
     const co2Elem = root.getElementById('extractCo2Svg');
     if (co2Elem) co2Elem.textContent = `${Math.round(co2Val)} ppm CO₂`;
 
-    // 7. Heater Active State & Coil Glow
-    const heaterId = this._config.heater_entity || this._findEntity([
-      'switch.systemair_heater',
-      'switch.systemair_reheater',
-      'switch.heater',
-      /^switch\..*heater/i,
-      /heater/i
+    // 7. Physical Heating Status vs Heater Switch Toggle
+    // The coil on diagram glows ONLY when the physical heating element is energized
+    const activeHeatingId = this._config.heating_active_entity || this._findEntity([
+      'binary_sensor.systemair_vtr_300_b_r_heater_active',
+      'binary_sensor.systemair_vtr_300_b_r_heating_active',
+      /^binary_sensor\..*heater.*active/i,
+      /^binary_sensor\..*heating.*active/i,
     ]);
-    let heaterActive = false;
-    if (this._optimistic.heater !== undefined) {
-      heaterActive = this._optimistic.heater;
-    } else if (heaterId && this._hass.states[heaterId]) {
-      heaterActive = this._hass.states[heaterId].state === 'on';
+    const heatingDemandId = this._config.heating_demand_entity || this._findEntity([
+      'sensor.systemair_vtr_300_b_r_heating_demand',
+      'sensor.systemair_vtr_300_b_r_heater_output_value',
+      /^sensor\..*heating_demand/i,
+      /^sensor\..*heater_output/i,
+    ]);
+
+    let isHeatingPhysically = false;
+    if (activeHeatingId && this._hass.states[activeHeatingId]) {
+      isHeatingPhysically = this._hass.states[activeHeatingId].state === 'on';
+    } else if (heatingDemandId && this._hass.states[heatingDemandId]) {
+      const demand = parseFloat(this._hass.states[heatingDemandId].state);
+      isHeatingPhysically = !isNaN(demand) && demand > 0;
+    } else if (climate && climate.attributes && climate.attributes.hvac_action) {
+      isHeatingPhysically = climate.attributes.hvac_action === 'heating';
     }
-    const heaterSwitch = root.getElementById('heaterSwitch');
-    if (heaterSwitch) heaterSwitch.classList.toggle('on', heaterActive);
 
     const heaterCoil = root.getElementById('heaterCoil');
-    if (heaterCoil) heaterCoil.classList.toggle('active', heaterActive);
+    if (heaterCoil) heaterCoil.classList.toggle('active', isHeatingPhysically);
 
     const heaterAura = root.getElementById('heaterAura');
-    if (heaterAura) heaterAura.setAttribute('opacity', heaterActive ? '0.85' : '0');
+    if (heaterAura) heaterAura.setAttribute('opacity', isHeatingPhysically ? '0.85' : '0');
+
+    // The iOS toggle switch controls whether the heater is configured/enabled
+    const heaterSwitchId = this._config.heater_switch_entity || this._findEntity([
+      'switch.ventiliatsionnaia_systemair_vtr_300_b_r_heater',
+      'switch.systemair_vtr_300_b_r_heater',
+      'switch.systemair_heater',
+      'switch.systemair_reheater',
+      /^switch\..*heater/i,
+    ]);
+    let heaterSwitchOn = false;
+    if (this._optimistic.heater !== undefined) {
+      heaterSwitchOn = this._optimistic.heater;
+    } else if (heaterSwitchId && this._hass.states[heaterSwitchId]) {
+      heaterSwitchOn = this._hass.states[heaterSwitchId].state === 'on';
+    }
+    const heaterSwitch = root.getElementById('heaterSwitch');
+    if (heaterSwitch) heaterSwitch.classList.toggle('on', heaterSwitchOn);
 
     // 8. Eco Mode & Free Cooling Toggles
     const ecoId = this._config.eco_entity || this._findEntity([
+      'switch.systemair_vtr_300_b_r_eco_mode',
       'switch.systemair_eco_mode',
       'switch.eco_mode',
       /eco/i
@@ -1021,6 +1077,7 @@ class SystemairRecuperatorCard extends HTMLElement {
     if (ecoSwitch) ecoSwitch.classList.toggle('on', ecoActive);
 
     const freeCoolId = this._config.free_cooling_entity || this._findEntity([
+      'switch.systemair_vtr_300_b_r_free_cooling',
       'switch.systemair_free_cooling',
       'switch.free_cooling',
       /free.*cool/i
@@ -1039,7 +1096,6 @@ class SystemairRecuperatorCard extends HTMLElement {
     // 10. Update Active Fan Speed Pill
     let fanSpeed = this._optimistic.fan_speed || (climate && climate.attributes ? climate.attributes.fan_mode : null);
     if (!fanSpeed && safRpm) {
-      // Map RPM into 1..5 if fan_mode is missing
       if (safRpm < 600) fanSpeed = '1';
       else if (safRpm < 950) fanSpeed = '2';
       else if (safRpm < 1300) fanSpeed = '3';
@@ -1053,10 +1109,10 @@ class SystemairRecuperatorCard extends HTMLElement {
     });
   }
 
-  // --- User Interaction Handlers with Instant Optimistic UI ---
+  // --- User Interaction Handlers (Pure Native Climate Integration) ---
   _changeTargetTemp(delta) {
     if (!this._hass) return;
-    const climateId = this._config.climate_entity || this._findEntity([/^climate\.systemair/]);
+    const climateId = this._getClimateId();
     if (!climateId) return;
 
     const climate = this._hass.states[climateId];
@@ -1081,7 +1137,7 @@ class SystemairRecuperatorCard extends HTMLElement {
 
   _setFanSpeed(speed) {
     if (!this._hass) return;
-    const climateId = this._config.climate_entity || this._findEntity([/^climate\.systemair/]);
+    const climateId = this._getClimateId();
     this._optimistic.fan_speed = speed;
     this._updateValues();
 
@@ -1096,34 +1152,53 @@ class SystemairRecuperatorCard extends HTMLElement {
 
   _setPresetMode(preset) {
     if (!this._hass) return;
-    const climateId = this._config.climate_entity || this._findEntity([/^climate\.systemair/]);
+    const climateId = this._getClimateId();
     this._optimistic.preset = preset;
     this._updateValues();
 
-    if (!climateId) return;
+    if (!climateId) {
+      console.warn('Systemair card: climate entity not found for set_preset_mode');
+      return;
+    }
+
+    // Call Home Assistant climate service directly
     this._hass.callService('climate', 'set_preset_mode', {
       entity_id: climateId,
       preset_mode: preset,
     }).then(() => {
-      setTimeout(() => { delete this._optimistic.preset; }, 4000);
-    }).catch(err => console.warn('Preset set failed', err));
+      setTimeout(() => { delete this._optimistic.preset; }, 3500);
+    }).catch(err => {
+      console.warn('Preset set failed', err);
+      delete this._optimistic.preset;
+      this._updateValues();
+    });
   }
 
   _toggleSwitch(type) {
     if (!this._hass) return;
     let entityId = null;
     if (type === 'heater') {
-      entityId = this._config.heater_entity || this._findEntity([
+      entityId = this._config.heater_switch_entity || this._findEntity([
+        'switch.ventiliatsionnaia_systemair_vtr_300_b_r_heater',
+        'switch.systemair_vtr_300_b_r_heater',
         'switch.systemair_heater',
         'switch.systemair_reheater',
-        'switch.heater',
         /^switch\..*heater/i,
-        /heater/i
       ]);
     } else if (type === 'eco') {
-      entityId = this._config.eco_entity || this._findEntity(['switch.systemair_eco_mode', 'switch.eco_mode', /eco/i]);
+      entityId = this._config.eco_entity || this._findEntity([
+        'switch.systemair_vtr_300_b_r_eco_mode',
+        'switch.systemair_eco_mode',
+        'switch.eco_mode',
+        /eco/i
+      ]);
     } else if (type === 'free_cooling') {
-      entityId = this._config.free_cooling_entity || this._findEntity(['switch.systemair_free_cooling', 'switch.free_cooling', /free.*cool/i]);
+      entityId = this._config.free_cooling_entity || this._findEntity([
+        'switch.systemair_vtr_300_b_r_free_cooling',
+        'switch.systemair_free_cooling',
+        'switch.free_cooling',
+        /free.*cool/i
+      ]);
     }
 
     // ALWAYS toggle optimistic state immediately so user sees instant feedback
@@ -1141,8 +1216,8 @@ class SystemairRecuperatorCard extends HTMLElement {
         setTimeout(() => { delete this._optimistic[type]; }, 4000);
       }).catch(err => console.warn('Switch service failed', err));
     } else if (type === 'heater') {
-      // Fallback: check climate HVAC mode if no switch entity found
-      const climateId = this._config.climate_entity || this._findEntity([/^climate\.systemair/]);
+      // Fallback: check climate HVAC mode if no direct switch found
+      const climateId = this._getClimateId();
       if (climateId) {
         this._hass.callService('climate', 'set_hvac_mode', {
           entity_id: climateId,

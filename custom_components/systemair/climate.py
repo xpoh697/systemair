@@ -1,5 +1,6 @@
 """Systemair HVAC integration."""
 
+import asyncio
 import asyncio.exceptions
 from typing import TYPE_CHECKING, Any, ClassVar
 
@@ -237,12 +238,20 @@ class SystemairClimateEntity(SystemairEntity, ClimateEntity):
 
     async def async_set_preset_mode(self, preset_mode: str) -> None:
         """Set new preset mode."""
-        ventilation_mode = PRESET_MODE_TO_VALUE_MAP[preset_mode]
+        if self.preset_mode == preset_mode:
+            return
+
+        ventilation_mode = PRESET_MODE_TO_VALUE_MAP.get(preset_mode)
+        if ventilation_mode is None:
+            return
 
         try:
             await self.coordinator.set_modbus_data(parameter_map["REG_USERMODE_HMI_CHANGE_REQUEST"], ventilation_mode)
+            await asyncio.sleep(1)
         except (asyncio.exceptions.TimeoutError, ConnectionError) as exc:
             raise HomeAssistantError from exc
+        finally:
+            await self.coordinator.async_refresh()
 
     @property
     def fan_mode(self) -> str | None:
@@ -261,6 +270,7 @@ class SystemairClimateEntity(SystemairEntity, ClimateEntity):
         mode = FAN_MODE_TO_VALUE_MAP[fan_mode]
         try:
             await self.coordinator.set_modbus_data(parameter_map["REG_USERMODE_MANUAL_AIRFLOW_LEVEL_SAF"], mode)
+            await asyncio.sleep(1)
         except (asyncio.exceptions.TimeoutError, ConnectionError) as exc:
             raise HomeAssistantError from exc
         finally:
