@@ -1,5 +1,5 @@
 {
-    "name": "AN3Orik/systemair",
+    "name": "xpoh697/systemair",
     "image": "mcr.microsoft.com/devcontainers/python:3.13",
     "postCreateCommand": "scripts/setup",
     "forwardPorts": [

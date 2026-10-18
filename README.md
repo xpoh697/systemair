@@ -1,9 +1,9 @@
 # Systemair Integration for Home Assistant
 
 [![HACS Default](https://img.shields.io/badge/HACS-Default-blue.svg?style=for-the-badge)](https://github.com/hacs/integration)
-[![GitHub Release](https://img.shields.io/github/v/release/AN3Orik/systemair?style=for-the-badge)](https://github.com/AN3Orik/systemair/releases)
-[![GitHub License](https://img.shields.io/github/license/AN3Orik/systemair?style=for-the-badge)](https://github.com/AN3Orik/systemair/blob/main/LICENSE)
-[![TIP](https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg?style=for-the-badge)](https://dalink.to/an3orik)
+[![GitHub Release](https://img.shields.io/github/v/release/xpoh697/systemair?style=for-the-badge)](https://github.com/xpoh697/systemair/releases)
+[![GitHub License](https://img.shields.io/github/license/xpoh697/systemair?style=for-the-badge)](https://github.com/xpoh697/systemair/blob/main/LICENSE)
+[![TIP](https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg?style=for-the-badge)](https://dalink.to/xpoh1980)
 
 This Home Assistant integration allows you to monitor and control **Systemair SAVE** ventilation units through multiple connection methods. It supports communication via **Modbus TCP**, **Modbus Serial (RS485)**, and **Web API**, providing flexibility for different hardware configurations.
 
@@ -60,7 +60,7 @@ This integration was tested with SAVE VSR 300 and VSR 500 models but should be c
 
 ### HACS
 
-1.  Open HACS and go to "Custom integrations". Enter the URL `https://github.com/AN3Orik/systemair`, choose type Integration and click Add.
+1.  Open HACS and go to "Custom integrations". Enter the URL `https://github.com/xpoh697/systemair`, choose type Integration and click Add.
 2.  Restart Home Assistant.
 3.  Go to settings and add new integration. You will find Systemair in the list of available integrations.
 
@@ -176,9 +176,9 @@ The primary entity for controlling the unit.
 
 ## Lovelace Cards
 
-To get the best experience, it is recommended to also install the [Systemair Lovelace Cards](https://github.com/AN3Orik/systemair-lovelace) pack, which provides specific way to display some information from integration (example: alarm history).
+To get the best experience, it is recommended to also install the [Systemair Lovelace Cards](https://github.com/xpoh697/systemair-lovelace) pack, which provides specific way to display some information from integration (example: alarm history).
 
-1.  Open HACS and go to "Custom integrations". Enter the URL `https://github.com/AN3Orik/systemair-lovelace`, choose type Dashboard and click Add.
+1.  Open HACS and go to "Custom integrations". Enter the URL `https://github.com/xpoh697/systemair-lovelace`, choose type Dashboard and click Add.
 2.  Find the "Systemair Lovelace Cards" in the list and click **Download**.
 3.  Follow the instructions to add the card to your dashboard.
 
