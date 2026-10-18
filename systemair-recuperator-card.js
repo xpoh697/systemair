@@ -6,7 +6,7 @@
  * realistic snail blowers, active reheater only when heating is physically active, bold typography,
  * direct climate more-info on rotor, full unit-off state handling, top power consumption badge,
  * and interactive controls.
- * Version: 1.0.42
+ * Version: 1.0.43
  */
 
 class SystemairRecuperatorCard extends HTMLElement {
@@ -585,12 +585,17 @@ class SystemairRecuperatorCard extends HTMLElement {
 
         /* Row 2: 3-Column Centered Toggles */
         .toggles-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 4px;
+          display: flex;
+          justify-content: space-around;
+          align-items: center;
+          gap: 8px;
           width: 100%;
+          box-sizing: border-box;
         }
         .toggle-col {
+          flex: 1;
+          max-width: 160px;
+          min-width: 0;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -1381,7 +1386,7 @@ class SystemairRecuperatorCard extends HTMLElement {
 
     const togglesGrid = root.querySelector('.toggles-grid');
     if (togglesGrid) {
-      togglesGrid.style.display = (!heaterSwitch && !ecoSwitch && !freeCoolingSwitch) ? 'none' : 'flex';
+      togglesGrid.style.display = (!heaterSwitch && !ecoSwitch && !freeCoolingSwitch) ? 'none' : '';
     }
 
     // 11. Fan Speed Pills
