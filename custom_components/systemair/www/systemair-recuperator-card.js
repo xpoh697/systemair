@@ -6,7 +6,7 @@
  * realistic snail blowers, active reheater only when heating is physically active, bold typography,
  * direct climate more-info on rotor, full unit-off state handling, top power consumption badge,
  * and interactive controls.
- * Version: 1.0.43
+ * Version: 1.0.44
  */
 
 class SystemairRecuperatorCard extends HTMLElement {
@@ -400,25 +400,35 @@ class SystemairRecuperatorCard extends HTMLElement {
           stroke-linejoin: round;
           transition: opacity 0.4s ease;
         }
+        #supplyStreamGroup {
+          --flow-dur-1: calc(2.2s * var(--saf-speed-factor, 1));
+          --flow-dur-2: calc(1.6s * var(--saf-speed-factor, 1));
+          --flow-dur-3: calc(2.8s * var(--saf-speed-factor, 1));
+        }
+        #exhaustStreamGroup {
+          --flow-dur-1: calc(2.2s * var(--eaf-speed-factor, 1));
+          --flow-dur-2: calc(1.6s * var(--eaf-speed-factor, 1));
+          --flow-dur-3: calc(2.8s * var(--eaf-speed-factor, 1));
+        }
         .flow-particles-1 {
           fill: none;
           stroke-linecap: round;
           stroke-linejoin: round;
-          animation: flowMotion1 2.2s linear infinite;
+          animation: flowMotion1 var(--flow-dur-1, 2.2s) linear infinite;
           transition: opacity 0.4s ease;
         }
         .flow-particles-2 {
           fill: none;
           stroke-linecap: round;
           stroke-linejoin: round;
-          animation: flowMotion2 1.6s linear infinite;
+          animation: flowMotion2 var(--flow-dur-2, 1.6s) linear infinite;
           transition: opacity 0.4s ease;
         }
         .flow-particles-3 {
           fill: none;
           stroke-linecap: round;
           stroke-linejoin: round;
-          animation: flowMotion3 2.8s linear infinite;
+          animation: flowMotion3 var(--flow-dur-3, 2.8s) linear infinite;
           transition: opacity 0.4s ease;
         }
         @keyframes flowMotion1 {
@@ -1258,6 +1268,33 @@ class SystemairRecuperatorCard extends HTMLElement {
     } else {
       safSpinner.style.animation = 'none';
       eafSpinner.style.animation = 'none';
+    }
+
+    // Dynamic Airflow Stream Speeds based on Fan RPM
+    const supplyStreamGroup = root.getElementById('supplyStreamGroup');
+    if (supplyStreamGroup) {
+      let safFactor = 1.0;
+      if (!isUnitOff && safRpm && safRpm > 50) {
+        safFactor = Math.min(3.0, Math.max(0.4, 1200 / safRpm));
+      } else if (!isUnitOff && currentFanMode === 'low') {
+        safFactor = 1.6;
+      } else if (!isUnitOff && (currentFanMode === 'high' || currentFanMode === 'boost')) {
+        safFactor = 0.65;
+      }
+      supplyStreamGroup.style.setProperty('--saf-speed-factor', safFactor.toFixed(2));
+    }
+
+    const exhaustStreamGroup = root.getElementById('exhaustStreamGroup');
+    if (exhaustStreamGroup) {
+      let eafFactor = 1.0;
+      if (!isUnitOff && eafRpm && eafRpm > 50) {
+        eafFactor = Math.min(3.0, Math.max(0.4, 1200 / eafRpm));
+      } else if (!isUnitOff && currentFanMode === 'low') {
+        eafFactor = 1.6;
+      } else if (!isUnitOff && (currentFanMode === 'high' || currentFanMode === 'boost')) {
+        eafFactor = 0.65;
+      }
+      exhaustStreamGroup.style.setProperty('--eaf-speed-factor', eafFactor.toFixed(2));
     }
 
     // 7. Rotary Heat Exchanger Dynamic Efficiency
