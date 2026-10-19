@@ -375,6 +375,21 @@
             },
             "alarm_reg_alarm_type_c": {
                 "name": "Авария: Тип C"
+            },
+            "exhaust_air_temperature": {
+                "name": "Температура удаляемого воздуха"
+            },
+            "supply_airflow": {
+                "name": "Расход приточного воздуха"
+            },
+            "exhaust_airflow": {
+                "name": "Расход удаляемого воздуха"
+            },
+            "supply_set_temp": {
+                "name": "Уставка температуры притока"
+            },
+            "filter_days_left": {
+                "name": "Срок службы фильтра"
             }
         },
         "switch": {

@@ -25,6 +25,12 @@ from homeassistant.const import (
 from homeassistant.util import dt as dt_util
 
 from .const import CONF_ENABLE_ALARM_HISTORY, DEFAULT_ENABLE_ALARM_HISTORY, MODEL_SPECS
+try:
+    from homeassistant.const import UnitOfVolumeFlowRate
+    VOLUME_FLOW_RATE_CUBIC_METERS_PER_HOUR = UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR
+except (ImportError, AttributeError):
+    VOLUME_FLOW_RATE_CUBIC_METERS_PER_HOUR = "m³/h"
+
 from .entity import SystemairEntity
 from .modbus import (
     ModbusParameter,
@@ -129,6 +135,50 @@ class SystemairEnergySensorEntityDescription(SensorEntityDescription):
 
     power_sensor_key: str
 
+
+
+CALCULATED_AIRFLOW_DESCRIPTIONS: tuple[SensorEntityDescription, ...] = (
+    SensorEntityDescription(
+        key="exhaust_air_temperature",
+        translation_key="exhaust_air_temperature",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+    ),
+    SensorEntityDescription(
+        key="supply_airflow",
+        translation_key="supply_airflow",
+        device_class=SensorDeviceClass.VOLUME_FLOW_RATE,
+        native_unit_of_measurement=VOLUME_FLOW_RATE_CUBIC_METERS_PER_HOUR,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+    ),
+    SensorEntityDescription(
+        key="exhaust_airflow",
+        translation_key="exhaust_airflow",
+        device_class=SensorDeviceClass.VOLUME_FLOW_RATE,
+        native_unit_of_measurement=VOLUME_FLOW_RATE_CUBIC_METERS_PER_HOUR,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+    ),
+    SensorEntityDescription(
+        key="supply_set_temp",
+        translation_key="supply_set_temp",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+    ),
+    SensorEntityDescription(
+        key="filter_days_left",
+        translation_key="filter_days_left",
+        device_class=SensorDeviceClass.DURATION,
+        native_unit_of_measurement=UnitOfTime.DAYS,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=0,
+    ),
+)
 
 ENERGY_SENSORS: tuple[SystemairEnergySensorEntityDescription, ...] = (
     SystemairEnergySensorEntityDescription(
@@ -422,7 +472,12 @@ async def async_setup_entry(
         for desc in ENERGY_SENSORS
     ]
 
-    async_add_entities(sensors + power_sensors + energy_sensors)
+    calculated_sensors = [
+        SystemairCalculatedAirflowSensor(coordinator=coordinator, entity_description=desc)
+        for desc in CALCULATED_AIRFLOW_DESCRIPTIONS
+    ]
+
+    async_add_entities(sensors + power_sensors + energy_sensors + calculated_sensors)
 
 
 class SystemairSensor(SystemairEntity, SensorEntity):
@@ -660,3 +715,102 @@ class SystemairEnergySensor(SystemairEntity, RestoreSensor):
 
         self._last_update = now
         self.async_write_ha_state()
+
+
+class SystemairCalculatedAirflowSensor(SystemairEntity, SensorEntity):
+    """Calculated airflow, filter, and exhaust temperature sensors."""
+
+    entity_description: SensorEntityDescription
+
+    def __init__(
+        self,
+        coordinator: SystemairDataUpdateCoordinator,
+        entity_description: SensorEntityDescription,
+    ) -> None:
+        """Initialize the calculated airflow/exhaust sensor."""
+        super().__init__(coordinator)
+        self.entity_description = entity_description
+        self._attr_unique_id = f"{coordinator.config_entry.entry_id}-{entity_description.key}"
+
+        # Register parameters required for calculation
+        for reg_key in [
+            "REG_OUTPUT_SAF",
+            "REG_OUTPUT_EAF",
+            "REG_TC_SP",
+            "REG_FILTER_REMAINING_TIME_L",
+            "REG_SENSOR_OAT",
+            "REG_SENSOR_SAT",
+            "REG_SENSOR_PDM_EAT_VALUE",
+            "REG_OUTPUT_TRIAC",
+        ]:
+            if reg_key in parameter_map:
+                self.coordinator.register_modbus_parameters(parameter_map[reg_key])
+
+    @property
+    def native_value(self) -> float | int | None:
+        """Return the calculated native value of the sensor."""
+        if self.coordinator.data is None:
+            return None
+
+        model = self.coordinator.config_entry.runtime_data.model
+        specs = MODEL_SPECS.get(model, {})
+        max_flow = specs.get("max_airflow", 300)
+
+        # 1. Supply Airflow (m³/h)
+        saf_pct = self.coordinator.get_modbus_data(parameter_map["REG_OUTPUT_SAF"])
+        supply_flow = round((float(saf_pct or 0) * max_flow) / 100, 1) if saf_pct is not None else 0.0
+        if self.entity_description.key == "supply_airflow":
+            return round((float(saf_pct) * max_flow) / 100, 1) if saf_pct is not None else None
+
+        # 2. Exhaust Airflow (m³/h, via EAF extract/exhaust fan)
+        eaf_pct = self.coordinator.get_modbus_data(parameter_map["REG_OUTPUT_EAF"])
+        exhaust_flow = round((float(eaf_pct or 0) * max_flow) / 100, 1) if eaf_pct is not None else 0.0
+        if self.entity_description.key == "exhaust_airflow":
+            return round((float(eaf_pct) * max_flow) / 100, 1) if eaf_pct is not None else None
+
+        # 3. Supply Target Setpoint Temperature (°C)
+        if self.entity_description.key == "supply_set_temp":
+            set_temp = self.coordinator.get_modbus_data(parameter_map["REG_TC_SP"])
+            return round(float(set_temp), 1) if set_temp is not None else None
+
+        # 4. Filter Remaining Life in Days
+        if self.entity_description.key == "filter_days_left":
+            seconds = self.coordinator.get_modbus_data(parameter_map["REG_FILTER_REMAINING_TIME_L"])
+            if seconds is not None:
+                return int(round(max(0, float(seconds) / 86400)))
+            return None
+
+        # 5. Thermodynamically Correct Exhaust Air Temperature (°C)
+        if self.entity_description.key == "exhaust_air_temperature":
+            outside = self.coordinator.get_modbus_data(parameter_map["REG_SENSOR_OAT"])
+            supply = self.coordinator.get_modbus_data(parameter_map["REG_SENSOR_SAT"])
+            extract = self.coordinator.get_modbus_data(parameter_map["REG_SENSOR_PDM_EAT_VALUE"])
+
+            if any(v is None for v in [outside, supply, extract]):
+                return None
+
+            outside, supply, extract = float(outside), float(supply), float(extract)
+
+            # If airflow is off/very low, no significant heat exchange occurs
+            if supply_flow < 5 or exhaust_flow < 5:
+                return round(extract, 1)
+
+            # Subtract heater power from supply temperature
+            heater_active = self.coordinator.get_modbus_data(parameter_map["REG_OUTPUT_TRIAC"])
+            heater_power = specs.get("heater_power", 0) if heater_active else 0
+            delta_t_heater = (heater_power * 2.975) / supply_flow if supply_flow > 0 else 0
+            t_supply_after_rotor = max(outside, supply - delta_t_heater)
+
+            # Thermal balance with airflow ratio
+            q_recovered = supply_flow * (t_supply_after_rotor - outside)
+            t_exhaust = extract - (q_recovered / exhaust_flow)
+
+            # Physical clamping bounds
+            min_bound = min(outside, extract)
+            max_bound = max(outside, extract)
+            t_exhaust = max(min_bound, min(max_bound, t_exhaust))
+
+            return round(t_exhaust, 1)
+
+        return None
+

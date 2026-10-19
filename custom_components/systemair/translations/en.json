@@ -381,6 +381,21 @@
             },
             "alarm_reg_alarm_type_c": {
                 "name": "Alarm Type C Active"
+            },
+            "exhaust_air_temperature": {
+                "name": "Exhaust Air Temperature"
+            },
+            "supply_airflow": {
+                "name": "Supply Airflow"
+            },
+            "exhaust_airflow": {
+                "name": "Exhaust Airflow"
+            },
+            "supply_set_temp": {
+                "name": "Supply Target Temperature"
+            },
+            "filter_days_left": {
+                "name": "Filter Remaining Days"
             }
         },
         "switch": {
